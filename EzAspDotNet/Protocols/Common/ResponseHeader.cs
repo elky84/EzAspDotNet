@@ -9,7 +9,6 @@ namespace EzAspDotNet.Protocols
 {
     public class ResponseHeader
     {
-        [JsonConverter(typeof(StringEnumConverter))]
         public ResultCode ResultCode { get; set; } = ResultCode.Success;
 
         public string ErrorMessage { get; set; }

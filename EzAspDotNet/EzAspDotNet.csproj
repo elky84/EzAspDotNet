@@ -5,7 +5,7 @@
     <RootNamespace>Web</RootNamespace>
 	
 	<PackageId>EzAspDotNet</PackageId>
-	<Version>1.0.2</Version>
+	<Version>1.0.4</Version>
 	<Authors>elky</Authors>
 	<Company>elky</Company>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -24,6 +24,8 @@
   </ItemGroup>
 
 </Project>
+
+
 
 
 
