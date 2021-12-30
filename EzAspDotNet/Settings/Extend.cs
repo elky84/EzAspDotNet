@@ -28,5 +28,10 @@ namespace EzAspDotNet.Settings
             var databaseSection = configuration.GetSection("MongoDb");
             return databaseSection.Get<MongoDbSettings>();
         }
+
+        public static ElasticSearch ElasticSearch(this IConfiguration configuration)
+        {
+            return configuration.GetSection("ElasticSearch").Get<ElasticSearch>();
+        }
     }
 }

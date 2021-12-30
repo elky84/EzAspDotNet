@@ -5,7 +5,7 @@
     <RootNamespace>Web</RootNamespace>
 	
 	<PackageId>EzAspDotNet</PackageId>
-	<Version>1.0.5</Version>
+	<Version>1.0.7</Version>
 	<Authors>elky</Authors>
 	<Company>elky</Company>
 	<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -16,6 +16,7 @@
 
   <ItemGroup>
     <PackageReference Include="MongoDbWebUtil" Version="1.0.6" />
+    <PackageReference Include="NEST" Version="7.16.0" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.1" />
 
 	<PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.1" />
@@ -32,3 +33,5 @@
   </ItemGroup>
 
 </Project>
+
+
