@@ -17,5 +17,7 @@ namespace EzAspDotNet.Code
         public static ResultCode HttpError = new(4, "Http오류");
 
         public static ResultCode NotConnectedMQ = new(5, "MQ에 연결되지 않았습니다");
+
+        public static ResultCode NotImplementedYet = new(6, "미구현 상태입니다");
     }
 }

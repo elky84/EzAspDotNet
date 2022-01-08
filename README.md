@@ -35,3 +35,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 ## nuget
 
 <https://www.nuget.org/packages/EzAspDotNet/>
+
+## version history
+
+### v1.0.14
+
+features added WebHook (Slack, Discord)
