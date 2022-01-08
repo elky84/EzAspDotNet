@@ -4,7 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebShared.Util
+namespace EzAspDotNet.Util
 {
     public static class JsonUtil
     {

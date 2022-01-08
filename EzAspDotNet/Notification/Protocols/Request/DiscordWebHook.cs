@@ -7,21 +7,24 @@ namespace EzAspDotNet.Notification.Protocols.Request
     public class DiscordWebHook
     {
 
-#pragma warning disable IDE1006 // Naming Styles
         public class EmbedImage
         {
+            [JsonProperty("Image")]
             public Dictionary<string, string> image { get; set; } = new Dictionary<string, string>();
         }
 
-        public string content { get; set; }
+        [JsonProperty("content")]
+        public string Content { get; set; }
 
-        public string username { get; set; }
+        [JsonProperty("username")]
+        public string UserName { get; set; }
 
-        public string avatar_url { get; set; }
+        [JsonProperty("avatar_url")]
+        public string AvatarUrl { get; set; }
 
-        public List<object> embeds = new List<object>();
+        [JsonProperty("embeds")]
+        public List<object> Embeds = new List<object>();
 
-#pragma warning restore IDE1006 // Naming Styles
 
         [JsonIgnore]
         public string HookUrl { get; set; }
@@ -37,7 +40,7 @@ namespace EzAspDotNet.Notification.Protocols.Request
             {
                 var embedImage = new EmbedImage();
                 embedImage.image.Add("url", imageUrl);
-                embeds.Add(embedImage);
+                Embeds.Add(embedImage);
             }
 
             return this;
@@ -47,11 +50,11 @@ namespace EzAspDotNet.Notification.Protocols.Request
         {
             return new DiscordWebHook
             {
-                avatar_url = avatar_url,
-                content = content,
-                embeds = embeds,
+                AvatarUrl = AvatarUrl,
+                Content = Content,
+                Embeds = Embeds,
                 HookUrl = HookUrl,
-                username = username
+                UserName = UserName
             };
         }
 
@@ -63,14 +66,14 @@ namespace EzAspDotNet.Notification.Protocols.Request
         public bool Equals(DiscordWebHook other)
         {
             return other != null &&
-                   content == other.content &&
-                   username == other.username &&
+                   Content == other.Content &&
+                   UserName == other.UserName &&
                    HookUrl == other.HookUrl;
         }
 
         public override int GetHashCode()
         {
-            return HashCode.Combine(content, username, HookUrl);
+            return HashCode.Combine(Content, UserName, HookUrl);
         }
     }
 }

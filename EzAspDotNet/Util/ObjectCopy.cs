@@ -4,7 +4,7 @@ using System.Text;
 using System.Reflection;
 using System.IO;
 
-namespace WebShared.Util
+namespace EzAspDotNet.Util
 {
     public static class ObjectCopy
     {

@@ -1,7 +1,8 @@
 ﻿using System;
-using WebShared.Common;
+using EnumExtend;
+using EzAspDotNet.Common;
 
-namespace WebShared.Util
+namespace EzAspDotNet.Util
 {
     public static class TypesUtil
     {

@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Text;
 
-namespace WebShared.Util
+namespace EzAspDotNet.Util
 {
     public class RandomUtil
     {

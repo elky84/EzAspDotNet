@@ -44,7 +44,7 @@ namespace EzAspDotNet.Services
             return await _mongoDbNotification.FindAsync(filter);
         }
 
-        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter, string title, string content)
+        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter, string title, string content, List<string> imageUrls = null)
         {
             var notifications = await Get(filter);
             foreach (var notification in notifications)
@@ -62,10 +62,10 @@ namespace EzAspDotNet.Services
                 switch (notification.Type)
                 {
                     case NotificationType.Discord:
-                        _discordWebHooks.Add(DiscordNotify(notification, content));
+                        _discordWebHooks.Add(DiscordNotify(notification, content, imageUrls));
                         break;
                     case NotificationType.Slack:
-                        _slackWebHooks.Add(SlackNotify(notification, content));
+                        _slackWebHooks.Add(SlackNotify(notification, content, imageUrls));
                         break;
                     default:
                         throw new DeveloperException(ResultCode.NotImplementedYet);
@@ -73,33 +73,33 @@ namespace EzAspDotNet.Services
             }
         }
 
-        private Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification, string content)
+        private Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification, string content, List<string> imageUrls = null)
         {
             return new Notification.Protocols.Request.SlackWebHook
             {
-                username = notification.Name,
-                channel = notification.Channel,
-                icon_url = notification.IconUrl,
-                text = content,
+                UserName = notification.Name,
+                Channel = notification.Channel,
+                IconUrl = notification.IconUrl,
+                Text = content,
                 HookUrl = notification.HookUrl
-            };
+            }.AddImage(imageUrls);
         }
 
-        private Notification.Protocols.Request.DiscordWebHook DiscordNotify(Notification.Models.Notification notification, string content)
+        private Notification.Protocols.Request.DiscordWebHook DiscordNotify(Notification.Models.Notification notification, string content, List<string> imageUrls = null)
         {
             return new Notification.Protocols.Request.DiscordWebHook
             {
-                username = notification.Name,
-                avatar_url = notification.IconUrl,
-                content = content,
+                UserName = notification.Name,
+                AvatarUrl = notification.IconUrl,
+                Content = content,
                 HookUrl = notification.HookUrl
-            };
+            }.AddImage(imageUrls);
         }
 
         private void ProcessSlackWebHooks()
         {
             var processList = new ConcurrentBag<Notification.Protocols.Request.SlackWebHook>();
-            Parallel.ForEach(_slackWebHooks.GroupBy(x => x.channel), group =>
+            Parallel.ForEach(_slackWebHooks.GroupBy(x => x.Channel), group =>
             {
                 foreach (var webHook in group.Select(x => x))
                 {

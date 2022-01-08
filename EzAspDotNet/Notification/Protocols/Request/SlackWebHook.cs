@@ -1,20 +1,45 @@
 ﻿using Newtonsoft.Json;
+using System.Collections.Generic;
 
 namespace EzAspDotNet.Notification.Protocols.Request
 {
     public class SlackWebHook
     {
-#pragma warning disable IDE1006 // Naming Styles
-        public string text { get; set; }
+        [JsonProperty("text")]
+        public string Text { get; set; }
 
-        public string username { get; set; }
+        [JsonProperty("username")]
+        public string UserName { get; set; }
 
-        public string icon_url { get; set; }
 
-        public string channel { get; set; }
-#pragma warning restore IDE1006 // Naming Styles
+        [JsonProperty("icon_url")]
+        public string IconUrl { get; set; }
+
+        [JsonProperty("channel")]
+        public string Channel { get; set; }
+
+        [JsonProperty("attachments")]
+        public List<SlackAttachment> Attachments { get; set; } = new();
 
         [JsonIgnore]
         public string HookUrl { get; set; }
+
+        public SlackWebHook AddImage(List<string> imageUrls)
+        {
+            if (imageUrls == null)
+            {
+                return this;
+            }
+
+            foreach (var imageUrl in imageUrls)
+            {
+                Attachments.Add(new SlackAttachment
+                {
+                    ImageUrl = imageUrl
+                });
+            }
+
+            return this;
+        }
     }
 }
