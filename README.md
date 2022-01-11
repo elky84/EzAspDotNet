@@ -38,6 +38,19 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.16
+
+added general utility codes (from MongoDbWebUtil)
+- LoopingService
+- RepeatedService
+- ClassUtil
+- CollectionUtil
+- HttpClientUtil (integrate to HttpClient.Extend)
+- JsonUtil
+- StringUtil (integrate)
+- TupleUtil
+- TypesUtil
+
 ### v1.0.14
 
 features added WebHook (Slack, Discord)

@@ -3,9 +3,9 @@ using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace EzAspDotNet.Service
+namespace EzAspDotNet.Services
 {
-    public class RepeatedService : IHostedService, IDisposable
+    public class LoopingService : IHostedService, IDisposable
     {
         private Task _executingTask;
 

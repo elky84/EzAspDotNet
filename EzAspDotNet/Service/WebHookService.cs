@@ -12,6 +12,8 @@ using EzAspDotNet.Exception;
 using EzAspDotNet.Notification.Types;
 using EzAspDotNet.Code;
 using System;
+using EzAspDotNet.HttpClient;
+using EzAspDotNet.Util;
 
 namespace EzAspDotNet.Services
 {
