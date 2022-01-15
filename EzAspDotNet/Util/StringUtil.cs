@@ -13,8 +13,7 @@ namespace EzAspDotNet.Util
             return input.Substring(0, position) + composite;
         }
 
-        public static int IndexOfNth(this string input,
-                             string value, int startIndex, int nth)
+        public static int IndexOfNth(this string input, string value, int startIndex, int nth)
         {
             if (nth < 1)
                 throw new NotSupportedException("Param 'nth' must be greater than 0!");

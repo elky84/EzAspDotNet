@@ -55,10 +55,25 @@ namespace EzAspDotNet.Services
             DateTime date,
             List<string> imageUrls = null)
         {
+            await Execute(filter, new Notification.Data.WebHook
+            {
+                Title = title,
+                Text = content,
+                Author = author,
+                TitleLink = href,
+                TimeStamp = date.ToTimeStamp()
+            },
+            imageUrls);
+        }
+
+        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
+                   Notification.Data.WebHook webHook,
+                   List<string> imageUrls = null)
+        {
             var notifications = await Get(filter);
             foreach (var notification in notifications)
             {
-                if (!notification.ContainsKeyword(title))
+                if (!notification.ContainsKeyword(webHook.Title))
                 {
                     continue;
                 }
@@ -71,10 +86,10 @@ namespace EzAspDotNet.Services
                 switch (notification.Type)
                 {
                     case NotificationType.Discord:
-                        _discordWebHooks.Add(DiscordNotify(notification, title, content, href, date, imageUrls));
+                        _discordWebHooks.Add(DiscordNotify(notification, webHook.Title, webHook.Text, webHook.TitleLink, webHook.TimeStamp, imageUrls));
                         break;
                     case NotificationType.Slack:
-                        _slackWebHooks.Add(SlackNotify(notification, title, content, author, href, date, imageUrls));
+                        _slackWebHooks.Add(SlackNotify(notification, webHook.Title, webHook.Text, webHook.Author, webHook.TitleLink, webHook.TimeStamp, imageUrls));
                         break;
                     default:
                         throw new DeveloperException(ResultCode.NotImplementedYet);
@@ -87,7 +102,7 @@ namespace EzAspDotNet.Services
             string content, 
             string author,
             string href,
-            DateTime date,
+            long timeStamp,
             List<string> imageUrls = null)
         {
             return new Notification.Protocols.Request.SlackWebHook
@@ -102,7 +117,7 @@ namespace EzAspDotNet.Services
                 Title = title,
                 TitleLink = href,
                 Footer = author,
-                TimeStamp = ((DateTimeOffset)date).ToUnixTimeSeconds(),
+                TimeStamp = timeStamp,
                 Text = content,
             })
             .AddImage(imageUrls);
@@ -112,10 +127,10 @@ namespace EzAspDotNet.Services
             string title,
             string text,
             string href,
-            DateTime date,
+            long timeStamp,
             List<string> imageUrls = null)
         {
-            var content = $"<{href}|[{text.ToWebHookText()}]{title.ToWebHookText()}> - {date}";
+            var content = $"<{href}|[{text.ToWebHookText()}]{title.ToWebHookText()}> - {timeStamp.ToDateTime()}";
 
             return new Notification.Protocols.Request.DiscordWebHook
             {
