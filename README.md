@@ -38,6 +38,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.17
+Improved Slack Alarm Readability 
+
 ### v1.0.16
 
 added general utility codes (from MongoDbWebUtil)

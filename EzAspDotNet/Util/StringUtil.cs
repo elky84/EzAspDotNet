@@ -105,5 +105,8 @@ namespace EzAspDotNet.Util
             return Regex.Replace(str, "[^가-힣]", "");
         }
 
+        // >은 link bracket을 깨뜨려서
+        public static string ToWebHookText(this string text) => text.Replace('<', '(')
+                                                                  .Replace('>', ')');
     }
 }
