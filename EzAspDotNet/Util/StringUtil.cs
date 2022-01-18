@@ -61,7 +61,7 @@ namespace EzAspDotNet.Util
         }
 
 
-        public static int ToIntRegx(this string str, int defaultValue = 0)
+        public static int ToIntRegex(this string str, int defaultValue = 0)
         {
             if (string.IsNullOrEmpty(str))
             {
