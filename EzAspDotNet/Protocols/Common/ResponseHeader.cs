@@ -1,5 +1,4 @@
 ﻿using Newtonsoft.Json;
-using Newtonsoft.Json.Converters;
 using Newtonsoft.Json.Linq;
 using EzAspDotNet.Code;
 using EzAspDotNet.Protocols.Id;
@@ -10,8 +9,6 @@ namespace EzAspDotNet.Protocols
     public class ResponseHeader
     {
         public ResultCode ResultCode { get; set; } = ResultCode.Success;
-
-        public string ErrorMessage { get; set; }
 
         public virtual ProtocolId ProtocolId { get; set; }
 

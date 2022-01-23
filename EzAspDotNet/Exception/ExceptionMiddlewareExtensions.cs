@@ -29,8 +29,6 @@ namespace EzAspDotNet.Exception
 
                             await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails
                             {
-                                StatusCode = context.Response.StatusCode,
-                                ErrorMessage = developerException.ResultCode.ToString(),
                                 Detail = developerException.Detail,
                                 ResultCode = developerException.ResultCode
                             }));
@@ -40,10 +38,8 @@ namespace EzAspDotNet.Exception
                             context.Response.StatusCode = (int)HttpStatusCode.InternalServerError;
                             await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails
                             {
-                                StatusCode = context.Response.StatusCode,
-                                ErrorMessage = "Internal Server Error",
                                 Detail = contextFeature.Error.Message,
-                                ResultCode = Code.ResultCode.UnknownException
+                                ResultCode = Code.ResultCode.InternalServerError
                             }));
                         }
                     }

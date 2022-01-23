@@ -38,6 +38,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.20
+Improve Protocol header. (Removed similar variables)
+
 ### v1.0.19
 Typo correction (ToIntRegx() -> ToIntRegex())
 

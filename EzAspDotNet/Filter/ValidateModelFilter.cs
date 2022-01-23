@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Linq;
 using EzAspDotNet.Protocols;
+using EzAspDotNet.Exception;
 
 namespace EzAspDotNet.Filter
 {
@@ -12,7 +13,7 @@ namespace EzAspDotNet.Filter
             if (!context.ModelState.IsValid)
             {
                 var message = string.Join(" | ", context.ModelState.Values.SelectMany(v => v.Errors).Select(e => e.ErrorMessage));
-                context.Result = new BadRequestObjectResult(new ResponseHeader { ResultCode = Code.ResultCode.BadRequest, ErrorMessage = message });
+                context.Result = new BadRequestObjectResult(new ErrorDetails { ResultCode = Code.ResultCode.BadRequest, Detail = message });
             }
         }
     }

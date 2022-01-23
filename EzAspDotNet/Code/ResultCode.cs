@@ -19,5 +19,7 @@ namespace EzAspDotNet.Code
         public static ResultCode NotConnectedMQ = new(5, "MQ에 연결되지 않았습니다");
 
         public static ResultCode NotImplementedYet = new(6, "미구현 상태입니다");
+
+        public static ResultCode InternalServerError = new(7, "내부적인 서버 오류가 발생했다");
     }
 }
