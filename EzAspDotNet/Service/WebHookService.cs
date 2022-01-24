@@ -130,7 +130,7 @@ namespace EzAspDotNet.Services
             long timeStamp,
             List<string> imageUrls = null)
         {
-            var content = $"<{href}|[{text.ToWebHookText()}]{title.ToWebHookText()}> - {timeStamp.ToDateTime()}";
+            var content = $"[{text.ToWebHookText()}]({href}) - {timeStamp.ToDateTime()}";
 
             return new Notification.Protocols.Request.DiscordWebHook
             {
