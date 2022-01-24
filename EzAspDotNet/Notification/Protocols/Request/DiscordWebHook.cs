@@ -9,8 +9,8 @@ namespace EzAspDotNet.Notification.Protocols.Request
 
         public class EmbedImage
         {
-            [JsonProperty("Image")]
-            public Dictionary<string, string> image { get; set; } = new Dictionary<string, string>();
+            [JsonProperty("image")]
+            public Dictionary<string, string> Image { get; set; } = new Dictionary<string, string>();
         }
 
         [JsonProperty("content")]
@@ -39,7 +39,7 @@ namespace EzAspDotNet.Notification.Protocols.Request
             foreach (var imageUrl in imageUrls)
             {
                 var embedImage = new EmbedImage();
-                embedImage.image.Add("url", imageUrl);
+                embedImage.Image.Add("url", imageUrl);
                 Embeds.Add(embedImage);
             }
 
