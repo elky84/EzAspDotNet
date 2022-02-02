@@ -96,7 +96,6 @@ namespace EzAspDotNet.Services
             return new Notification.Protocols.Request.DiscordWebHook
             {
                 UserName = notification.Name,
-                Content = webHook.Text,
                 AvatarUrl = notification.IconUrl,
                 HookUrl = notification.HookUrl,
                 Embeds = new()

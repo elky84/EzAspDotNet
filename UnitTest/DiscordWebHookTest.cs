@@ -27,11 +27,13 @@ namespace UnitTest
                 {
                     UserName = "elky",
                     AvatarUrl = "https://platform.slack-edge.com/img/default_application_icon.png",
-                    Content = "test content",
                     Embeds = new()
                     {
                         new DiscordWebHook.Embed
                         {
+                            Title = "title test",
+                            Url = "https://op.gg",
+                            Description = "test desc",
                             Author = new()
                             {
                                 Name = "elky_author",
@@ -74,11 +76,13 @@ namespace UnitTest
                 {
                     UserName = "elky",
                     AvatarUrl = "https://platform.slack-edge.com/img/default_application_icon.png",
-                    Content = "test content",
                     Embeds = new()
                     {
                         DiscordWebHook.Convert(new EzAspDotNet.Notification.Data.WebHook
                         {
+                            Title = "title test",
+                            TitleLink = "https://op.gg",
+                            Text = "test desc",
                             Author = "elky_author",
                             AuthorIcon = "https://opgg-com-image.akamaized.net/attach/images/20190416173507.228538.png",
                             AuthorLink = "https://op.gg",

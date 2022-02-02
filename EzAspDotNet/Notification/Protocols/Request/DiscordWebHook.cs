@@ -59,6 +59,12 @@ namespace EzAspDotNet.Notification.Protocols.Request
 
         public class Embed
         {
+            [JsonProperty("title")]
+            public string Title { get; set; }
+
+            [JsonProperty("url")]
+            public string Url { get; set; }
+
             [JsonProperty("description")]
             public string Description { get; set; }
 
@@ -83,9 +89,6 @@ namespace EzAspDotNet.Notification.Protocols.Request
 
         [JsonProperty("username")]
         public string UserName { get; set; }
-
-        [JsonProperty("content")]
-        public string Content { get; set; }
 
         [JsonProperty("avatar_url")]
         public string AvatarUrl { get; set; }
@@ -129,6 +132,9 @@ namespace EzAspDotNet.Notification.Protocols.Request
         {
             return new Embed
             {
+                Title = webHook.Title,
+                Url = webHook.TitleLink,
+                Description = webHook.Text,
                 Author = new EmbedAuthor
                 {
                     IconUrl = webHook.AuthorIcon,
