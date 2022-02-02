@@ -38,6 +38,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.25
+Improve discord webhook formatting.
+Added discord webhook Unit Test.
+
 ### v1.0.23
 Fix discord webhook image embeds error.
 

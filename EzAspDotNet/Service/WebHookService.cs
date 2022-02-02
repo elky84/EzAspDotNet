@@ -47,28 +47,8 @@ namespace EzAspDotNet.Services
             return await _mongoDbNotification.FindAsync(filter);
         }
 
-        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter, 
-            string title, 
-            string content, 
-            string author,
-            string href,
-            DateTime date,
-            List<string> imageUrls = null)
-        {
-            await Execute(filter, new Notification.Data.WebHook
-            {
-                Title = title,
-                Text = content,
-                Author = author,
-                TitleLink = href,
-                TimeStamp = date.ToTimeStamp()
-            },
-            imageUrls);
-        }
-
         public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
-                   Notification.Data.WebHook webHook,
-                   List<string> imageUrls = null)
+                   Notification.Data.WebHook webHook)
         {
             var notifications = await Get(filter);
             foreach (var notification in notifications)
@@ -86,10 +66,10 @@ namespace EzAspDotNet.Services
                 switch (notification.Type)
                 {
                     case NotificationType.Discord:
-                        _discordWebHooks.Add(DiscordNotify(notification, webHook.Title, webHook.Text, webHook.TitleLink, webHook.TimeStamp, imageUrls));
+                        _discordWebHooks.Add(DiscordNotify(notification, webHook));
                         break;
                     case NotificationType.Slack:
-                        _slackWebHooks.Add(SlackNotify(notification, webHook.Title, webHook.Text, webHook.Author, webHook.TitleLink, webHook.TimeStamp, imageUrls));
+                        _slackWebHooks.Add(SlackNotify(notification, webHook));
                         break;
                     default:
                         throw new DeveloperException(ResultCode.NotImplementedYet);
@@ -97,13 +77,8 @@ namespace EzAspDotNet.Services
             }
         }
 
-        private Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification, 
-            string title,
-            string content, 
-            string author,
-            string href,
-            long timeStamp,
-            List<string> imageUrls = null)
+        private Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification,
+            Notification.Data.WebHook webHook)
         {
             return new Notification.Protocols.Request.SlackWebHook
             {
@@ -112,33 +87,23 @@ namespace EzAspDotNet.Services
                 HookUrl = notification.HookUrl,
                 UserName = notification.Name,
             }
-            .AddMessage(new Notification.Protocols.Request.SlackAttachment
-            {
-                Title = title,
-                TitleLink = href,
-                Footer = author,
-                TimeStamp = timeStamp,
-                Text = content,
-            })
-            .AddImage(imageUrls);
+            .AddMessage(Notification.Protocols.Request.SlackAttachment.Convert(webHook));
         }
 
         private Notification.Protocols.Request.DiscordWebHook DiscordNotify(Notification.Models.Notification notification,
-            string title,
-            string text,
-            string href,
-            long timeStamp,
-            List<string> imageUrls = null)
+            Notification.Data.WebHook webHook)
         {
-            var content = $"[{text.ToWebHookText()}]({href}) - {timeStamp.ToDateTime()}";
-
             return new Notification.Protocols.Request.DiscordWebHook
             {
                 UserName = notification.Name,
+                Content = webHook.Text,
                 AvatarUrl = notification.IconUrl,
-                Content = content,
-                HookUrl = notification.HookUrl
-            }.AddImage(imageUrls);
+                HookUrl = notification.HookUrl,
+                Embeds = new()
+                {
+                    Notification.Protocols.Request.DiscordWebHook.Convert(webHook)
+                }
+            };
         }
 
         private void ProcessSlackWebHooks()

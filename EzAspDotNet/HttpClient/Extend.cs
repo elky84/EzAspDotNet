@@ -117,6 +117,17 @@ namespace EzAspDotNet.HttpClient
             return await httpResponse.ResponseDeserialize<T>();
         }
 
+        public static async Task<T> Request<T>(this System.Net.Http.HttpClient httpClient,
+            HttpMethod httpMethod, string url, object body)
+        {
+            var request = new HttpRequestMessage(httpMethod, url)
+            {
+                Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
+            };
+            var httpResponse = await httpClient.SendAsync(request);
+            return await httpResponse.ResponseDeserialize<T>();
+        }
+
         private static async Task<T> ResponseDeserialize<T>(this HttpResponseMessage httpResponse)
         {
             return JsonConvert.DeserializeObject<T>(await httpResponse.Content.ReadAsStringAsync());
