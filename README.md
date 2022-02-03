@@ -38,6 +38,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.27
+Support webhook data multi embed.
+
 ### v1.0.26
 Improve discord webhook formatting. (More information)
 

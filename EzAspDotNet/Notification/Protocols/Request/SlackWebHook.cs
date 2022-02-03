@@ -25,23 +25,5 @@ namespace EzAspDotNet.Notification.Protocols.Request
             Attachments.Add(slackAttachment);
             return this;
         }
-
-        public SlackWebHook AddImage(List<string> imageUrls)
-        {
-            if (imageUrls == null)
-            {
-                return this;
-            }
-
-            foreach (var imageUrl in imageUrls)
-            {
-                Attachments.Add(new SlackAttachment
-                {
-                    ImageUrl = imageUrl
-                });
-            }
-
-            return this;
-        }
     }
 }

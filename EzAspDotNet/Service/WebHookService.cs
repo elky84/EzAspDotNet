@@ -48,12 +48,12 @@ namespace EzAspDotNet.Services
         }
 
         public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
-                   Notification.Data.WebHook webHook)
+                   List<Notification.Data.WebHook> webHooks)
         {
             var notifications = await Get(filter);
             foreach (var notification in notifications)
             {
-                if (!notification.ContainsKeyword(webHook.Title))
+                if (webHooks.Any(x => !notification.ContainsKeyword(x.Title)))
                 {
                     continue;
                 }
@@ -66,10 +66,10 @@ namespace EzAspDotNet.Services
                 switch (notification.Type)
                 {
                     case NotificationType.Discord:
-                        _discordWebHooks.Add(DiscordNotify(notification, webHook));
+                        _discordWebHooks.Add(DiscordNotify(notification, webHooks));
                         break;
                     case NotificationType.Slack:
-                        _slackWebHooks.Add(SlackNotify(notification, webHook));
+                        _slackWebHooks.Add(SlackNotify(notification, webHooks));
                         break;
                     default:
                         throw new DeveloperException(ResultCode.NotImplementedYet);
@@ -78,7 +78,7 @@ namespace EzAspDotNet.Services
         }
 
         private Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification,
-            Notification.Data.WebHook webHook)
+            List<Notification.Data.WebHook> webHooks)
         {
             return new Notification.Protocols.Request.SlackWebHook
             {
@@ -86,22 +86,19 @@ namespace EzAspDotNet.Services
                 IconUrl = notification.IconUrl,
                 HookUrl = notification.HookUrl,
                 UserName = notification.Name,
-            }
-            .AddMessage(Notification.Protocols.Request.SlackAttachment.Convert(webHook));
+                Attachments = webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x))
+            };
         }
 
         private Notification.Protocols.Request.DiscordWebHook DiscordNotify(Notification.Models.Notification notification,
-            Notification.Data.WebHook webHook)
+            List<Notification.Data.WebHook> webHooks)
         {
             return new Notification.Protocols.Request.DiscordWebHook
             {
                 UserName = notification.Name,
                 AvatarUrl = notification.IconUrl,
                 HookUrl = notification.HookUrl,
-                Embeds = new()
-                {
-                    Notification.Protocols.Request.DiscordWebHook.Convert(webHook)
-                }
+                Embeds = webHooks.ConvertAll(x => Notification.Protocols.Request.DiscordWebHook.Convert(x))
             };
         }
 
@@ -135,6 +132,13 @@ namespace EzAspDotNet.Services
                     {
                         var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
                         if (response == null || response.Headers == null)
+                        {
+                            Thread.Sleep(1000);
+                            continue;
+                        }
+
+                        if(!response.Headers.Contains("x-ratelimit-remaining") ||
+                            !response.Headers.Contains("x-ratelimit-reset-after"))
                         {
                             Thread.Sleep(1000);
                             continue;
