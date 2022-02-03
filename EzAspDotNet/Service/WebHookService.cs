@@ -72,10 +72,30 @@ namespace EzAspDotNet.Services
                 switch (notification.Type)
                 {
                     case NotificationType.Discord:
-                        _discordWebHooks.Add(DiscordNotify(notification, webHooks));
+                        {
+                            var origin = _discordWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl);
+                            if(origin != null)
+                            {
+                                origin.Embeds.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.DiscordWebHook.Convert(x)));
+                            }
+                            else
+                            {
+                                _discordWebHooks.Add(DiscordNotify(notification, webHooks));
+                            }
+                        }
                         break;
                     case NotificationType.Slack:
-                        _slackWebHooks.Add(SlackNotify(notification, webHooks));
+                        {
+                            var origin = _slackWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl);
+                            if (origin != null)
+                            {
+                                origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
+                            }
+                            else
+                            {
+                                _slackWebHooks.Add(SlackNotify(notification, webHooks));
+                            }
+                        }
                         break;
                     default:
                         throw new DeveloperException(ResultCode.NotImplementedYet);

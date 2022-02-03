@@ -38,6 +38,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.30
+Support webhook grouping.
+Avoid having to pass a webhook timestamp value.
+
 ### v1.0.29
 Fixed discord time stamp issue.
 
