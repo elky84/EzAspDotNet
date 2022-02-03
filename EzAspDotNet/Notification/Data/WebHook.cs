@@ -16,7 +16,7 @@ namespace EzAspDotNet.Notification.Data
 
         public string AuthorIcon { get; set; }
 
-        public long TimeStamp { get; set; }
+        public long? TimeStamp { get; set; }
 
         public string Footer { get; set; }
 

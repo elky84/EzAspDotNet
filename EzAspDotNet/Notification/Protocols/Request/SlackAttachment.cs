@@ -24,7 +24,7 @@ namespace EzAspDotNet.Notification.Protocols.Request
         public string AuthorIcon { get; set; }
 
         [JsonProperty("ts")]
-        public long TimeStamp { get; set; }
+        public long? TimeStamp { get; set; }
 
         [JsonProperty("footer")]
         public string Footer { get; set; }

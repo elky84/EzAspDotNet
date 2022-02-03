@@ -48,6 +48,12 @@ namespace EzAspDotNet.Services
         }
 
         public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
+                   Notification.Data.WebHook webHook)
+        {
+            await Execute(filter, new List<Notification.Data.WebHook> { webHook });
+        }
+
+        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
                    List<Notification.Data.WebHook> webHooks)
         {
             var notifications = await Get(filter);

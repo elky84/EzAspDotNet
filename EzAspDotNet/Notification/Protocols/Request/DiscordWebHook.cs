@@ -141,7 +141,7 @@ namespace EzAspDotNet.Notification.Protocols.Request
                     Name = webHook.Author,
                     Url = webHook.AuthorLink,
                 },
-                TimeStamp = webHook.TimeStamp.ToDateTime().ToString("yyyy-MM-ddTHH:mm:ss.000Z"),
+                TimeStamp = webHook.TimeStamp?.ToDateTime().ToUniversalIso8601(),
                 Footer = new EmbedFooter
                 {
                     IconUrl = webHook.FooterIcon,
