@@ -29,7 +29,6 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
   * Common Protocol (with Common Header), Common Spec, Easy Setup, Exception Handling, Validation
 * Swagger usage to easy.
 * MongoDB  usage to easy.
-  * use [MongoDbWebUtil](https://github.com/elky84/MongoDbWebUtil)
 * And more included C# utility codes
 
 ## nuget
@@ -37,6 +36,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 <https://www.nuget.org/packages/EzAspDotNet/>
 
 ## version history
+
+### v1.0.31
+Integrate MongoDbWebUtil. <https://github.com/elky84/MongoDbWebUtil>
+Remove namespace MongoDbWebUtil. (move to EzAspDotNet)
 
 ### v1.0.30
 Support webhook grouping.
@@ -78,7 +81,7 @@ Improved Slack Alarm Readability
 
 ### v1.0.16
 
-added general utility codes (from MongoDbWebUtil)
+added general utility codes (from EzAspDotNet)
 - LoopingService
 - RepeatedService
 - ClassUtil

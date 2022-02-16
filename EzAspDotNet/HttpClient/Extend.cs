@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 using EzAspDotNet.Protocols;
 using EzAspDotNet.Constants;
 using EzAspDotNet.Exception;
+using Serilog;
 
 namespace EzAspDotNet.HttpClient
 {
@@ -124,13 +125,30 @@ namespace EzAspDotNet.HttpClient
             {
                 Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
             };
+            
             var httpResponse = await httpClient.SendAsync(request);
             return await httpResponse.ResponseDeserialize<T>();
         }
 
         private static async Task<T> ResponseDeserialize<T>(this HttpResponseMessage httpResponse)
         {
-            return JsonConvert.DeserializeObject<T>(await httpResponse.Content.ReadAsStringAsync());
+            var responseContent = await httpResponse.Content.ReadAsStringAsync();
+            if(string.IsNullOrEmpty(responseContent))
+            {
+                Log.Logger.Error($"ResponseSerialize Failed. <StatusCode:{httpResponse.StatusCode}> <Url:{httpResponse.RequestMessage.Method} {httpResponse.RequestMessage.RequestUri}> <Content:{httpResponse.RequestMessage.Content}>");
+                return default;
+            }
+
+            try
+            {
+                return JsonConvert.DeserializeObject<T>(responseContent);
+            }
+            catch(System.Exception ex)
+            {
+                Log.Logger.Error($"ResponseSerialize Failed. <Exception:{ex.Message}> <StatusCode:{httpResponse.StatusCode}> <Url:{httpResponse.RequestMessage.Method} {httpResponse.RequestMessage.RequestUri}> <Content:{httpResponse.RequestMessage.Content}>");
+                ex.ExceptionLog();
+                return default;
+            }
         }
     }
 }

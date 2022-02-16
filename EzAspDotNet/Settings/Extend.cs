@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Configuration;
-using MongoDbWebUtil.Settings;
 
 namespace EzAspDotNet.Settings
 {

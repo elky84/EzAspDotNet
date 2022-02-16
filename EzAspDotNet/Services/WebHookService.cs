@@ -1,6 +1,5 @@
-﻿using MongoDbWebUtil.Util;
+﻿using EzAspDotNet.Util;
 using System.Threading.Tasks;
-using MongoDbWebUtil.Services;
 using MongoDB.Driver;
 using System.Collections.Generic;
 using System.Net.Http;
@@ -13,8 +12,6 @@ using EzAspDotNet.Notification.Types;
 using EzAspDotNet.Code;
 using System;
 using EzAspDotNet.HttpClient;
-using EzAspDotNet.Util;
-using Newtonsoft.Json;
 
 namespace EzAspDotNet.Services
 {

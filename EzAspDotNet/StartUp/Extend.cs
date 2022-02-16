@@ -10,7 +10,7 @@ using EzAspDotNet.Swagger;
 using EzAspDotNet.Filter;
 using EzAspDotNet.Exception;
 using Serilog;
-using MongoDbWebUtil.Services;
+using EzAspDotNet.Services;
 
 namespace EzAspDotNet.StartUp
 {
