@@ -37,6 +37,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.32
+Change use to Slack webhooks group by HookUrl and Channel (Discord webhook not used Channel)
+
 ### v1.0.31
 Integrate MongoDbWebUtil. <https://github.com/elky84/MongoDbWebUtil>
 Remove namespace MongoDbWebUtil. (move to EzAspDotNet)

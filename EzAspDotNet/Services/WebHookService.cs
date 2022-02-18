@@ -83,7 +83,8 @@ namespace EzAspDotNet.Services
                         break;
                     case NotificationType.Slack:
                         {
-                            var origin = _slackWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl);
+                            var origin = _slackWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl &&
+                                                                            x.Channel == notification.Channel);
                             if (origin != null)
                             {
                                 origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
