@@ -350,9 +350,3 @@ MigrationBackup/
 .ionide/
 
 # ignore custom files.
-
-/Pack
-
-publish*.bat
-
-*.ps1
