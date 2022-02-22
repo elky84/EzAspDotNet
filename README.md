@@ -1,6 +1,9 @@
 [![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg?label=elky-essay)](https://elky84.github.io)
 ![Made with](https://img.shields.io/badge/made%20with-.NET6-blue.svg)
 
+[![Publish Nuget Github Package](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_github.yml/badge.svg)](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_github.yml)
+[![Publish Nuget Package](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_nuget.yml/badge.svg)](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_nuget.yml)
+
 ![GitHub forks](https://img.shields.io/github/forks/elky84/EzAspDotNet.svg?style=social&label=Fork)
 ![GitHub stars](https://img.shields.io/github/stars/elky84/EzAspDotNet.svg?style=social&label=Stars)
 ![GitHub watchers](https://img.shields.io/github/watchers/elky84/EzAspDotNet.svg?style=social&label=Watch)
