@@ -21,12 +21,9 @@ namespace EzAspDotNet.Services
 
         private readonly IHttpClientFactory _httpClientFactory;
 
+        private readonly List<Notification.Protocols.Request.DiscordWebHook> _discordWebHooks = new();
 
-        private readonly List<Notification.Protocols.Request.DiscordWebHook> _discordWebHooks =
-            new List<Notification.Protocols.Request.DiscordWebHook>();
-
-        private readonly List<Notification.Protocols.Request.SlackWebHook> _slackWebHooks =
-            new List<Notification.Protocols.Request.SlackWebHook>();
+        private readonly List<Notification.Protocols.Request.SlackWebHook> _slackWebHooks = new();
 
         public WebHookService(MongoDbService mongoDbService,
             IHttpClientFactory httpClientFactory)
@@ -73,7 +70,8 @@ namespace EzAspDotNet.Services
                             var origin = _discordWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl);
                             if(origin != null)
                             {
-                                origin.Embeds.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.DiscordWebHook.Convert(x)));
+                                lock(origin.Embeds)
+                                    origin.Embeds.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.DiscordWebHook.Convert(x)));
                             }
                             else
                             {
@@ -87,7 +85,8 @@ namespace EzAspDotNet.Services
                                                                             x.Channel == notification.Channel);
                             if (origin != null)
                             {
-                                origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
+                                lock (origin.Attachments)
+                                    origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
                             }
                             else
                             {
@@ -129,14 +128,15 @@ namespace EzAspDotNet.Services
         private void ProcessSlackWebHooks()
         {
             var processList = new ConcurrentBag<Notification.Protocols.Request.SlackWebHook>();
-            Parallel.ForEach(_slackWebHooks.GroupBy(x => x.Channel), group =>
+            Parallel.ForEach(_slackWebHooks, webHook =>
             {
-                foreach (var webHook in group.Select(x => x))
+                var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
+                if(response.IsSuccessStatusCode)
                 {
-                    _ = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook);
-                    Thread.Sleep(1000); // 초당 한개...라고함.
                     processList.Add(webHook);
                 }
+
+                Thread.Sleep(1000); // 초당 한개...라고함.
             });
 
             foreach (var process in processList)
@@ -148,51 +148,45 @@ namespace EzAspDotNet.Services
         private void ProcessDiscordWebHooks()
         {
             var processList = new ConcurrentBag<Notification.Protocols.Request.DiscordWebHook>();
-            Parallel.ForEach(_discordWebHooks.GroupBy(x => x.HookUrl).Select(x => x.Select(y => y.Clone())).ToList(), group =>
+            Parallel.ForEach(_discordWebHooks, webHook =>
             {
-                foreach (var webHook in group)
+                try
                 {
-                    try
+                    var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
+                    if (response == null || response.Headers == null)
                     {
-                        var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
-                        if (response == null || response.Headers == null)
-                        {
-                            Thread.Sleep(1000);
-                            continue;
-                        }
-
-                        if(!response.Headers.Contains("x-ratelimit-remaining") ||
-                            !response.Headers.Contains("x-ratelimit-reset-after"))
-                        {
-                            Thread.Sleep(1000);
-                            continue;
-                        }
-
-                        var rateLimitRemaining = response.Headers.GetValues("x-ratelimit-remaining").FirstOrDefault().ToInt();
-                        var rateLimitAfter = response.Headers.GetValues("x-ratelimit-reset-after").FirstOrDefault().ToInt();
-                        if (response.IsSuccessStatusCode)
-                        {
-                            processList.Add(webHook);
-                        }
-
-                        if (rateLimitRemaining <= 1 || rateLimitAfter > 0)
-                        {
-                            Thread.Sleep((rateLimitAfter + 1) * 1000);
-                            continue;
-                        }
-
-                        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-                        {
-                            Log.Logger.Error($"Too Many Requests [{webHook.HookUrl}] [{rateLimitRemaining}, {rateLimitAfter}]");
-                            break;
-                        }
-                    }
-                    catch (System.Exception e)
-                    {
-                        e.ExceptionLog();
                         Thread.Sleep(1000);
-                        break;
+                        return;
                     }
+
+                    if(!response.Headers.Contains("x-ratelimit-remaining") ||
+                        !response.Headers.Contains("x-ratelimit-reset-after"))
+                    {
+                        Thread.Sleep(1000);
+                        return;
+                    }
+
+                    var rateLimitRemaining = response.Headers.GetValues("x-ratelimit-remaining").FirstOrDefault().ToInt();
+                    var rateLimitAfter = response.Headers.GetValues("x-ratelimit-reset-after").FirstOrDefault().ToInt();
+                    if (response.IsSuccessStatusCode)
+                    {
+                        processList.Add(webHook);
+                    }
+
+                    if (rateLimitRemaining <= 1 || rateLimitAfter > 0)
+                    {
+                        Thread.Sleep((rateLimitAfter + 1) * 1000);
+                    }
+
+                    if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                    {
+                        Log.Logger.Error($"Too Many Requests [{webHook.HookUrl}] [{rateLimitRemaining}, {rateLimitAfter}]");
+                    }
+                }
+                catch (System.Exception e)
+                {
+                    e.ExceptionLog();
+                    Thread.Sleep(1000);
                 }
             });
 
