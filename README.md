@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.34
+Fixed multithreading issues in webhook process. (List to ConcurrentBag)
+
 ### v1.0.33
 Fixed multithreading issues in webhook process.
 

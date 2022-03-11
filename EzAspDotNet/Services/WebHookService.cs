@@ -21,9 +21,9 @@ namespace EzAspDotNet.Services
 
         private readonly IHttpClientFactory _httpClientFactory;
 
-        private readonly List<Notification.Protocols.Request.DiscordWebHook> _discordWebHooks = new();
+        private readonly ConcurrentBag<Notification.Protocols.Request.DiscordWebHook> _discordWebHooks = new();
 
-        private readonly List<Notification.Protocols.Request.SlackWebHook> _slackWebHooks = new();
+        private readonly ConcurrentBag<Notification.Protocols.Request.SlackWebHook> _slackWebHooks = new();
 
         public WebHookService(MongoDbService mongoDbService,
             IHttpClientFactory httpClientFactory)
@@ -127,27 +127,33 @@ namespace EzAspDotNet.Services
 
         private void ProcessSlackWebHooks()
         {
-            var processList = new ConcurrentBag<Notification.Protocols.Request.SlackWebHook>();
+            var notProcessList = new ConcurrentBag<Notification.Protocols.Request.SlackWebHook>();
+            var cloneList = _slackWebHooks.ToList();
+            _slackWebHooks.Clear();
+
             Parallel.ForEach(_slackWebHooks, webHook =>
             {
                 var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
-                if(response.IsSuccessStatusCode)
+                if(!response.IsSuccessStatusCode)
                 {
-                    processList.Add(webHook);
+                    notProcessList.Add(webHook);
                 }
 
                 Thread.Sleep(1000); // 초당 한개...라고함.
             });
 
-            foreach (var process in processList)
+            foreach (var process in notProcessList)
             {
-                _slackWebHooks.Remove(process);
+                _slackWebHooks.Add(process);
             }
         }
 
         private void ProcessDiscordWebHooks()
         {
-            var processList = new ConcurrentBag<Notification.Protocols.Request.DiscordWebHook>();
+            var notProcessList = new ConcurrentBag<Notification.Protocols.Request.DiscordWebHook>();
+            var cloneList = _discordWebHooks.ToList();
+            _discordWebHooks.Clear();
+
             Parallel.ForEach(_discordWebHooks, webHook =>
             {
                 try
@@ -155,6 +161,7 @@ namespace EzAspDotNet.Services
                     var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
                     if (response == null || response.Headers == null)
                     {
+                        notProcessList.Add(webHook);
                         Thread.Sleep(1000);
                         return;
                     }
@@ -162,25 +169,26 @@ namespace EzAspDotNet.Services
                     if(!response.Headers.Contains("x-ratelimit-remaining") ||
                         !response.Headers.Contains("x-ratelimit-reset-after"))
                     {
+                        notProcessList.Add(webHook);
                         Thread.Sleep(1000);
                         return;
                     }
 
                     var rateLimitRemaining = response.Headers.GetValues("x-ratelimit-remaining").FirstOrDefault().ToInt();
                     var rateLimitAfter = response.Headers.GetValues("x-ratelimit-reset-after").FirstOrDefault().ToInt();
-                    if (response.IsSuccessStatusCode)
+                    if (!response.IsSuccessStatusCode)
                     {
-                        processList.Add(webHook);
+                        if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
+                        {
+                            Log.Logger.Error($"Too Many Requests [{webHook.HookUrl}] [{rateLimitRemaining}, {rateLimitAfter}]");
+                        }
+
+                        notProcessList.Add(webHook);
                     }
 
                     if (rateLimitRemaining <= 1 || rateLimitAfter > 0)
                     {
                         Thread.Sleep((rateLimitAfter + 1) * 1000);
-                    }
-
-                    if (response.StatusCode == System.Net.HttpStatusCode.TooManyRequests)
-                    {
-                        Log.Logger.Error($"Too Many Requests [{webHook.HookUrl}] [{rateLimitRemaining}, {rateLimitAfter}]");
                     }
                 }
                 catch (System.Exception e)
@@ -190,9 +198,9 @@ namespace EzAspDotNet.Services
                 }
             });
 
-            foreach (var process in processList)
+            foreach (var process in notProcessList)
             {
-                _discordWebHooks.Remove(process);
+                _discordWebHooks.Add(process);
             }
         }
 
