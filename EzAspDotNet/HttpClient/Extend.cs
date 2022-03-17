@@ -34,7 +34,7 @@ namespace EzAspDotNet.HttpClient
                 }
                 else
                 {
-                    throw new DeveloperException(Code.ResultCode.HttpError, httpResponseMessage.StatusCode);
+                    throw new DeveloperException(Protocols.Code.ResultCode.HttpError, httpResponseMessage.StatusCode);
                 }
             }
         }

@@ -9,7 +9,6 @@ using System.Threading;
 using Serilog;
 using EzAspDotNet.Exception;
 using EzAspDotNet.Notification.Types;
-using EzAspDotNet.Code;
 using System;
 using EzAspDotNet.HttpClient;
 
@@ -95,7 +94,7 @@ namespace EzAspDotNet.Services
                         }
                         break;
                     default:
-                        throw new DeveloperException(ResultCode.NotImplementedYet);
+                        throw new DeveloperException(Protocols.Code.ResultCode.NotImplementedYet);
                 }
             }
         }

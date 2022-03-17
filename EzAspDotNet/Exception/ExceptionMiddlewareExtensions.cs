@@ -39,7 +39,7 @@ namespace EzAspDotNet.Exception
                             await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails
                             {
                                 Detail = contextFeature.Error.Message,
-                                ResultCode = Code.ResultCode.InternalServerError
+                                ResultCode = Protocols.Code.ResultCode.InternalServerError
                             }));
                         }
                     }

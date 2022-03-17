@@ -40,7 +40,7 @@ namespace EzAspDotNet.RabbitMQ
             }
             catch (System.Exception e)
             {
-                throw new DeveloperException(Code.ResultCode.NotConnectedMQ, System.Net.HttpStatusCode.InternalServerError, e.Message);
+                throw new DeveloperException(Protocols.Code.ResultCode.NotConnectedMQ, System.Net.HttpStatusCode.InternalServerError, e.Message);
             }
         }
 
