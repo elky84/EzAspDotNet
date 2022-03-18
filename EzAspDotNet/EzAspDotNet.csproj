@@ -1,8 +1,8 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net6.0</TargetFramework>
-    <RootNamespace>Web</RootNamespace>
+    	<TargetFramework>net6.0</TargetFramework>
+    	<RootNamespace>EzAspDotNet</RootNamespace>
 	
 	<PackageId>EzAspDotNet</PackageId>
 	<Version>1.0.36</Version>
