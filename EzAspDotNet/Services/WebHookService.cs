@@ -66,11 +66,16 @@ namespace EzAspDotNet.Services
                 {
                     case NotificationType.Discord:
                         {
-                            var origin = _discordWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl);
+                            var origin = _discordWebHooks.LastOrDefault(x => x.HookUrl == notification.HookUrl);
                             if(origin != null)
                             {
                                 lock(origin.Embeds)
-                                    origin.Embeds.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.DiscordWebHook.Convert(x)));
+                                {
+                                    if (origin.Embeds.Count > 50)
+                                        _discordWebHooks.Add(DiscordNotify(notification, webHooks));
+                                    else
+                                        origin.Embeds.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.DiscordWebHook.Convert(x)));
+                                }
                             }
                             else
                             {
@@ -80,12 +85,17 @@ namespace EzAspDotNet.Services
                         break;
                     case NotificationType.Slack:
                         {
-                            var origin = _slackWebHooks.FirstOrDefault(x => x.HookUrl == notification.HookUrl &&
+                            var origin = _slackWebHooks.LastOrDefault(x => x.HookUrl == notification.HookUrl &&
                                                                             x.Channel == notification.Channel);
                             if (origin != null)
                             {
                                 lock (origin.Attachments)
-                                    origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
+                                {
+                                    if(origin.Attachments.Count > 50)
+                                        _slackWebHooks.Add(SlackNotify(notification, webHooks));
+                                    else
+                                        origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
+                                }
                             }
                             else
                             {

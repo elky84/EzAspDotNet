@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.37
+Maximum webhook attachment size 50
+
 ### v1.0.36
 Seperate Protocol function to EzAspDotNet.Protocols package.
 
