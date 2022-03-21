@@ -26,6 +26,7 @@ namespace EzAspDotNet.StartUp
             services.AddHttpClient();
 
             services.AddTransient<MongoDbService>();
+            services.AddTransient<HttpClientService>();
 
             services.Configure<CookiePolicyOptions>(options =>
             {

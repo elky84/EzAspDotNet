@@ -18,17 +18,17 @@ namespace EzAspDotNet.Services
     {
         private readonly MongoDbUtil<Notification.Models.Notification> _mongoDbNotification;
 
-        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly HttpClientService _httpClientService;
 
         private readonly ConcurrentBag<Notification.Protocols.Request.DiscordWebHook> _discordWebHooks = new();
 
         private readonly ConcurrentBag<Notification.Protocols.Request.SlackWebHook> _slackWebHooks = new();
 
         public WebHookService(MongoDbService mongoDbService,
-            IHttpClientFactory httpClientFactory)
+            HttpClientService httpClientService)
         {
             _mongoDbNotification = new MongoDbUtil<Notification.Models.Notification>(mongoDbService.Database);
-            _httpClientFactory = httpClientFactory;
+            _httpClientService = httpClientService;
 
             _mongoDbNotification.Collection.Indexes.CreateOne(new CreateIndexModel<Notification.Models.Notification>(
                 Builders<Notification.Models.Notification>.IndexKeys.Ascending(x => x.SourceId)
@@ -141,7 +141,7 @@ namespace EzAspDotNet.Services
 
             Parallel.ForEach(cloneList, webHook =>
             {
-                var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
+                var response = _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
                 if(!response.IsSuccessStatusCode)
                 {
                     _slackWebHooks.Add(webHook);
@@ -160,7 +160,7 @@ namespace EzAspDotNet.Services
             {
                 try
                 {
-                    var response = _httpClientFactory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
+                    var response = _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
                     if (response == null || response.Headers == null)
                     {
                         _discordWebHooks.Add(webHook);
