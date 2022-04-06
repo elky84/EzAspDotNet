@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.40
+Upgrade version EzAspDotNet.Protocols. (1.0.3 -> 1.0.4)
+
 ### v1.0.39
 Upgrade version EzAspDotNet.Protocols. (1.0.0 -> 1.0.3)
 
