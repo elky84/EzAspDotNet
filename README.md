@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.41
+Added InternalServer header to missing HttpClient method.
+
 ### v1.0.40
 Upgrade version EzAspDotNet.Protocols. (1.0.3 -> 1.0.4)
 

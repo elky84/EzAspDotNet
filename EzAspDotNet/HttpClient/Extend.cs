@@ -1,13 +1,13 @@
-﻿using Newtonsoft.Json;
+﻿using EzAspDotNet.Constants;
+using EzAspDotNet.Exception;
+using EzAspDotNet.Protocols;
+using Newtonsoft.Json;
+using Serilog;
 using System;
 using System.Net.Http;
 using System.Net.Http.Headers;
 using System.Text;
 using System.Threading.Tasks;
-using EzAspDotNet.Protocols;
-using EzAspDotNet.Constants;
-using EzAspDotNet.Exception;
-using Serilog;
 
 namespace EzAspDotNet.HttpClient
 {
@@ -99,6 +99,7 @@ namespace EzAspDotNet.HttpClient
             {
                 Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
             };
+            client.SetDefaultHeader(request, null);
             return await client.SendAsync(request);
         }
 
@@ -125,7 +126,7 @@ namespace EzAspDotNet.HttpClient
             {
                 Content = new StringContent(JsonConvert.SerializeObject(body), Encoding.UTF8, "application/json")
             };
-            
+
             var httpResponse = await httpClient.SendAsync(request);
             return await httpResponse.ResponseDeserialize<T>();
         }
@@ -133,7 +134,7 @@ namespace EzAspDotNet.HttpClient
         private static async Task<T> ResponseDeserialize<T>(this HttpResponseMessage httpResponse)
         {
             var responseContent = await httpResponse.Content.ReadAsStringAsync();
-            if(string.IsNullOrEmpty(responseContent))
+            if (string.IsNullOrEmpty(responseContent))
             {
                 Log.Logger.Error($"ResponseSerialize Failed. <StatusCode:{httpResponse.StatusCode}> <Url:{httpResponse.RequestMessage.Method} {httpResponse.RequestMessage.RequestUri}> <Content:{httpResponse.RequestMessage.Content}>");
                 return default;
@@ -143,7 +144,7 @@ namespace EzAspDotNet.HttpClient
             {
                 return JsonConvert.DeserializeObject<T>(responseContent);
             }
-            catch(System.Exception ex)
+            catch (System.Exception ex)
             {
                 Log.Logger.Error($"ResponseSerialize Failed. <Exception:{ex.Message}> <StatusCode:{httpResponse.StatusCode}> <Url:{httpResponse.RequestMessage.Method} {httpResponse.RequestMessage.RequestUri}> <Content:{httpResponse.RequestMessage.Content}>");
                 ex.ExceptionLog();
