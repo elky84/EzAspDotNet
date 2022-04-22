@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.42
+Added file logging to default option.
+
 ### v1.0.41
 Added InternalServer header to missing HttpClient method.
 

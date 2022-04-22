@@ -11,6 +11,7 @@ using EzAspDotNet.Filter;
 using EzAspDotNet.Exception;
 using Serilog;
 using EzAspDotNet.Services;
+using System.Reflection;
 
 namespace EzAspDotNet.StartUp
 {
@@ -21,6 +22,8 @@ namespace EzAspDotNet.StartUp
             Log.Logger = new LoggerConfiguration()
                 .MinimumLevel.Error()
                 .WriteTo.Console()
+                .WriteTo.File($"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}" +
+                              $"/logs/{System.Diagnostics.Process.GetCurrentProcess().ProcessName}_.log", rollingInterval: RollingInterval.Day)
                 .CreateLogger();
 
             services.AddHttpClient();
