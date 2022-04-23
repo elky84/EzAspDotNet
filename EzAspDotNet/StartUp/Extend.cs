@@ -12,6 +12,9 @@ using EzAspDotNet.Exception;
 using Serilog;
 using EzAspDotNet.Services;
 using System.Reflection;
+using Microsoft.Extensions.Configuration;
+using EzAspDotNet.Settings;
+using System.IO;
 
 namespace EzAspDotNet.StartUp
 {
@@ -19,12 +22,25 @@ namespace EzAspDotNet.StartUp
     {
         public static void CommonConfigureServices(this IServiceCollection services)
         {
-            Log.Logger = new LoggerConfiguration()
-                .MinimumLevel.Error()
-                .WriteTo.Console()
-                .WriteTo.File($"{System.IO.Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}" +
-                              $"/logs/{System.Diagnostics.Process.GetCurrentProcess().ProcessName}_.log", rollingInterval: RollingInterval.Day)
-                .CreateLogger();
+            if (File.Exists("serilog.json"))
+            {
+                var seriLogJson = new ConfigurationBuilder()
+                                      .AddJsonFile("serilog.json")
+                                      .Build();
+
+                Log.Logger = new LoggerConfiguration()
+                                .ReadFrom.Configuration(seriLogJson)
+                                .CreateLogger();
+            }
+            else
+            {
+                Log.Logger = new LoggerConfiguration()
+                    .MinimumLevel.Error()
+                    .WriteTo.Console()
+                    .WriteTo.File($"{Path.GetDirectoryName(Assembly.GetEntryAssembly().Location)}" +
+                                  $"/logs/{System.Diagnostics.Process.GetCurrentProcess().ProcessName}_.log", rollingInterval: RollingInterval.Day)
+                    .CreateLogger();
+            }
 
             services.AddHttpClient();
 
