@@ -40,6 +40,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.44
+Disable cookie security configration. (for http)
+Added port to RabbitMq Configuration.
+
 ### v1.0.43
 Added file logging configuration from serilog.json.
 

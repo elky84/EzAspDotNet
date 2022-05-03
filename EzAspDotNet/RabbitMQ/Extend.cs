@@ -1,17 +1,22 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EzAspDotNet.Exception;
+using EzAspDotNet.Settings;
+using Microsoft.Extensions.Configuration;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 using System.Text;
-using EzAspDotNet.Settings;
-using EzAspDotNet.Exception;
 
 namespace EzAspDotNet.RabbitMQ
 {
     public static class Extend
     {
-        public static IConnection CreateConnection(string hostName, string userName, string password)
+        public static IConnection CreateConnection(string hostName, int port, string userName, string password)
         {
             var factory = new ConnectionFactory() { HostName = hostName };
+
+            if (port != 0)
+            {
+                factory.Port = port;
+            }
 
             if (userName != null)
             {
@@ -29,14 +34,15 @@ namespace EzAspDotNet.RabbitMQ
         public static IConnection CreateConnectionFromConfiguration(IConfiguration configuration)
         {
             var rabbitMqSettings = configuration.GetRabbitMqSettings();
-            return CreateConnectionWithTryCatch(rabbitMqSettings.Url, rabbitMqSettings.UserName, rabbitMqSettings.Password);
+            return CreateConnectionWithTryCatch(rabbitMqSettings.Url, rabbitMqSettings.Port,
+                rabbitMqSettings.UserName, rabbitMqSettings.Password);
         }
 
-        public static IConnection CreateConnectionWithTryCatch(string hostName, string userName, string password)
+        public static IConnection CreateConnectionWithTryCatch(string hostName, int port, string userName, string password)
         {
             try
             {
-                return CreateConnection(hostName, userName, password);
+                return CreateConnection(hostName, port, userName, password);
             }
             catch (System.Exception e)
             {

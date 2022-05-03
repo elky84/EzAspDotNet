@@ -5,7 +5,7 @@
 		<RootNamespace>EzAspDotNet</RootNamespace>
 
 		<PackageId>EzAspDotNet</PackageId>
-		<Version>1.0.43</Version>
+		<Version>1.0.44</Version>
 		<Authors>elky</Authors>
 		<Company>elky</Company>
 		<PackageReadmeFile>README.md</PackageReadmeFile>

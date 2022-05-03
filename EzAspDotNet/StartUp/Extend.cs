@@ -49,8 +49,8 @@ namespace EzAspDotNet.StartUp
 
             services.Configure<CookiePolicyOptions>(options =>
             {
-                options.MinimumSameSitePolicy = SameSiteMode.None;
-                options.Secure = CookieSecurePolicy.Always;
+                options.Secure = CookieSecurePolicy.None;
+                options.HttpOnly = Microsoft.AspNetCore.CookiePolicy.HttpOnlyPolicy.None;
             });
 
             services.AddMvc(option => option.EnableEndpointRouting = false)
