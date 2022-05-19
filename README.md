@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.45
+Added AutoMapper and MapperUtil. (AutoMapper Util)
+
 ### v1.0.44
 Disable cookie security configration. (for http)
 Added port to RabbitMq Configuration.

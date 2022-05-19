@@ -5,7 +5,7 @@
 		<RootNamespace>EzAspDotNet</RootNamespace>
 
 		<PackageId>EzAspDotNet</PackageId>
-		<Version>1.0.44</Version>
+		<Version>1.0.45</Version>
 		<Authors>elky</Authors>
 		<Company>elky</Company>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
@@ -22,6 +22,7 @@
 	</ItemGroup>
 
 	<ItemGroup>
+		<PackageReference Include="AutoMapper" Version="11.0.1" />
 		<PackageReference Include="EnumExtend" Version="1.0.4" />
 		<PackageReference Include="EzAspDotNet.Protocols" Version="1.0.3" />
 		<PackageReference Include="MongoDB.Bson" Version="2.14.1" />

@@ -2,7 +2,6 @@
 using MongoDB.Bson.Serialization.Attributes;
 using Newtonsoft.Json;
 using System;
-using System.Runtime.CompilerServices;
 
 namespace EzAspDotNet.Models
 {
