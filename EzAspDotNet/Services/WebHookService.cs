@@ -11,6 +11,7 @@ using EzAspDotNet.Exception;
 using EzAspDotNet.Notification.Types;
 using System;
 using EzAspDotNet.HttpClient;
+using EzMongoDb.Util;
 
 namespace EzAspDotNet.Services
 {

@@ -1,10 +1,10 @@
-﻿using MongoDB.Bson;
+﻿using EzAspDotNet.Notification.Types;
+using EzMongoDb.Models;
+using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using EzAspDotNet.Models;
-using EzAspDotNet.Notification.Types;
 
 namespace EzAspDotNet.Notification.Models
 {

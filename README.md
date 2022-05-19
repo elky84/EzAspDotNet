@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.46
+Moved MongoDb function To EzMongoDb (<https://github.com/elky84/EzMongoDb>)
+
 ### v1.0.45
 Added AutoMapper and MapperUtil. (AutoMapper Util)
 
