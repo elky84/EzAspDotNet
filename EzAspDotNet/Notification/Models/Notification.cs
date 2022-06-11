@@ -21,14 +21,19 @@ namespace EzAspDotNet.Notification.Models
 
         public string IconUrl { get; set; }
 
-        public string Keyword { get; set; }
-
         public string SourceId { get; set; }
 
         public string CrawlingType { get; set; }
 
         [BsonRepresentation(BsonType.String)]
         public List<DayOfWeek> FilterDayOfWeeks { get; set; } = new List<DayOfWeek>();
+        public string Keyword { get; set; }
+
+        public string Prefix { get; set; }
+
+        public string Postfix { get; set; }
+
+        public string FilterKeyword { get; set; }
 
         public string FilterStartTime { get; set; }
 
@@ -42,6 +47,16 @@ namespace EzAspDotNet.Notification.Models
             }
 
             return Keyword.Split("|").Any(x => check.Contains(x));
+        }
+
+        public bool ContainsFilterKeyword(string check)
+        {
+            if (string.IsNullOrEmpty(FilterKeyword))
+            {
+                return true;
+            }
+
+            return FilterKeyword.Split("|").Any(x => check.Contains(x));
         }
 
         public bool FilteredTime(DateTime dateTime)

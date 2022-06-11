@@ -1,17 +1,17 @@
-﻿using EzAspDotNet.Util;
-using System.Threading.Tasks;
-using MongoDB.Driver;
-using System.Collections.Generic;
-using System.Net.Http;
-using System.Linq;
-using System.Collections.Concurrent;
-using System.Threading;
-using Serilog;
-using EzAspDotNet.Exception;
-using EzAspDotNet.Notification.Types;
-using System;
+﻿using EzAspDotNet.Exception;
 using EzAspDotNet.HttpClient;
+using EzAspDotNet.Notification.Types;
+using EzAspDotNet.Util;
 using EzMongoDb.Util;
+using MongoDB.Driver;
+using Serilog;
+using System;
+using System.Collections.Concurrent;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace EzAspDotNet.Services
 {
@@ -53,7 +53,7 @@ namespace EzAspDotNet.Services
             var notifications = await Get(filter);
             foreach (var notification in notifications)
             {
-                if (webHooks.Any(x => !notification.ContainsKeyword(x.Title)))
+                if (webHooks.Any(x => !notification.ContainsFilterKeyword(x.Title)))
                 {
                     continue;
                 }
@@ -63,14 +63,26 @@ namespace EzAspDotNet.Services
                     continue;
                 }
 
+                webHooks.ForEach(x =>
+                {
+                    if (notification.ContainsKeyword(x.Title))
+                    {
+                        if (!string.IsNullOrEmpty(notification.Prefix))
+                            x.Title = notification.Prefix + x.Title;
+
+                        if (!string.IsNullOrEmpty(notification.Postfix))
+                            x.Title += notification.Postfix;
+                    }
+                });
+
                 switch (notification.Type)
                 {
                     case NotificationType.Discord:
                         {
                             var origin = _discordWebHooks.LastOrDefault(x => x.HookUrl == notification.HookUrl);
-                            if(origin != null)
+                            if (origin != null)
                             {
-                                lock(origin.Embeds)
+                                lock (origin.Embeds)
                                 {
                                     if (origin.Embeds.Count > 50)
                                         _discordWebHooks.Add(DiscordNotify(notification, webHooks));
@@ -92,7 +104,7 @@ namespace EzAspDotNet.Services
                             {
                                 lock (origin.Attachments)
                                 {
-                                    if(origin.Attachments.Count > 50)
+                                    if (origin.Attachments.Count > 50)
                                         _slackWebHooks.Add(SlackNotify(notification, webHooks));
                                     else
                                         origin.Attachments.AddRange(webHooks.ConvertAll(x => Notification.Protocols.Request.SlackAttachment.Convert(x)));
@@ -143,7 +155,7 @@ namespace EzAspDotNet.Services
             Parallel.ForEach(cloneList, webHook =>
             {
                 var response = _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
-                if(!response.IsSuccessStatusCode)
+                if (!response.IsSuccessStatusCode)
                 {
                     _slackWebHooks.Add(webHook);
                 }
@@ -169,7 +181,7 @@ namespace EzAspDotNet.Services
                         return;
                     }
 
-                    if(!response.Headers.Contains("x-ratelimit-remaining") ||
+                    if (!response.Headers.Contains("x-ratelimit-remaining") ||
                         !response.Headers.Contains("x-ratelimit-reset-after"))
                     {
                         _discordWebHooks.Add(webHook);
