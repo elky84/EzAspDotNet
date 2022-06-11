@@ -40,10 +40,12 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.48
+change string.IsNullOrEmpty return false to true on ContainsKeyword  in Notification (webhook)
+
 ### v1.0.47
 added notification prefix and postfix.
 changed notification keyword to notification filter keyword.
-
 
 ### v1.0.46
 Moved MongoDb function To EzMongoDb (<https://github.com/elky84/EzMongoDb>)

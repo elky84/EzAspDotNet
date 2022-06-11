@@ -43,7 +43,7 @@ namespace EzAspDotNet.Notification.Models
         {
             if (string.IsNullOrEmpty(Keyword))
             {
-                return true;
+                return false;
             }
 
             return Keyword.Split("|").Any(x => check.Contains(x));
