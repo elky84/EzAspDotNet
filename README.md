@@ -40,6 +40,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.49
+Remove JsonUtil.ConvertTo method.
+
 ### v1.0.48
 change string.IsNullOrEmpty return false to true on ContainsKeyword  in Notification (webhook)
 
