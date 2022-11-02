@@ -17,8 +17,9 @@ namespace EzAspDotNet.Exception
                 appError.Run(async context =>
                 {
                     context.Response.ContentType = "application/json";
+                    context.Response.StatusCode = StatusCodes.Status500InternalServerError;
 
-                    var contextFeature = context.Features.Get<IExceptionHandlerFeature>();
+                    var contextFeature = context.Features?.Get<IExceptionHandlerFeature>();
                     if (contextFeature != null)
                     {
                         Log.Logger.Error($"Something went wrong: {contextFeature.Error}");
@@ -42,6 +43,14 @@ namespace EzAspDotNet.Exception
                                 ResultCode = Protocols.Code.ResultCode.InternalServerError
                             }));
                         }
+                    }
+                    else
+                    {
+                        await context.Response.WriteAsync(JsonConvert.SerializeObject(new ErrorDetails
+                        {
+                            Detail = "Unknown Error",
+                            ResultCode = Protocols.Code.ResultCode.InternalServerError
+                        }));
                     }
                 });
             });
