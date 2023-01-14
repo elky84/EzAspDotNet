@@ -1,6 +1,7 @@
-﻿using Microsoft.Extensions.Configuration;
+﻿using EzAspDotNet.Settings;
+using Microsoft.Extensions.Configuration;
 using MongoDB.Driver;
-using EzAspDotNet.Settings;
+using System;
 
 namespace EzAspDotNet.Services
 {
@@ -12,8 +13,20 @@ namespace EzAspDotNet.Services
 
         public MongoDbService(IConfiguration configuration)
         {
-            var client = new MongoClient(configuration.GetMongoDbSettings().ConnectionString);
-            Database = client.GetDatabase(configuration.GetMongoDbSettings().DatabaseName);
+            var connectionString = configuration.GetMongoDbSettings().ConnectionString;
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MONGODB_CONNECTION")))
+            {
+                connectionString = Environment.GetEnvironmentVariable("MONGODB_CONNECTION");
+            }
+
+            var database = configuration.GetMongoDbSettings().DatabaseName;
+            if (!string.IsNullOrEmpty(Environment.GetEnvironmentVariable("MONGODB_DATABASE")))
+            {
+                database = Environment.GetEnvironmentVariable("MONGODB_DATABASE");
+            }
+
+            var client = new MongoClient(connectionString);
+            Database = client.GetDatabase(database);
         }
     }
 }

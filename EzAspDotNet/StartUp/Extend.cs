@@ -1,20 +1,19 @@
-﻿using Newtonsoft.Json;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Hosting;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.OpenApi.Models;
-using EzAspDotNet.Swagger;
+﻿using EzAspDotNet.Exception;
 using EzAspDotNet.Filter;
-using EzAspDotNet.Exception;
-using Serilog;
 using EzAspDotNet.Services;
-using System.Reflection;
+using EzAspDotNet.Swagger;
+using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
-using EzAspDotNet.Settings;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.OpenApi.Models;
+using Newtonsoft.Json;
+using Serilog;
 using System.IO;
+using System.Reflection;
 
 namespace EzAspDotNet.StartUp
 {

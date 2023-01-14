@@ -34,11 +34,20 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 * MongoDB  usage to easy.
 * And more included C# utility codes
 
+## ENVIORNMENT Variable (high priority option)
+* MONGODB_CONNECTION
+	* MongoDB Connection String
+* MONGODB_DATABASE
+	* MongoDB Database Name
+
 ## nuget
 
 <https://www.nuget.org/packages/EzAspDotNet/>
 
 ## version history
+
+### v1.0.51
+Support forcing mongodb connection string and database settings via environment variables
 
 ### v1.0.50
 Improve exception mandling & message.

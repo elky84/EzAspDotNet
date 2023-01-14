@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace EzAspDotNet.Settings
+﻿namespace EzAspDotNet.Settings
 {
     public class DatabaseSettings
     {
