@@ -122,7 +122,7 @@ namespace EzAspDotNet.Services
             }
         }
 
-        private Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification,
+        private static Notification.Protocols.Request.SlackWebHook SlackNotify(Notification.Models.Notification notification,
             List<Notification.Data.WebHook> webHooks)
         {
             return new Notification.Protocols.Request.SlackWebHook
@@ -135,7 +135,7 @@ namespace EzAspDotNet.Services
             };
         }
 
-        private Notification.Protocols.Request.DiscordWebHook DiscordNotify(Notification.Models.Notification notification,
+        private static Notification.Protocols.Request.DiscordWebHook DiscordNotify(Notification.Models.Notification notification,
             List<Notification.Data.WebHook> webHooks)
         {
             return new Notification.Protocols.Request.DiscordWebHook
@@ -152,15 +152,14 @@ namespace EzAspDotNet.Services
             var cloneList = _slackWebHooks.ToList();
             _slackWebHooks.Clear();
 
-            Parallel.ForEach(cloneList, webHook =>
+            Parallel.ForEach(cloneList, async webHook =>
             {
-                var response = _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
+                var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook);
                 if (!response.IsSuccessStatusCode)
                 {
+                    Log.Logger.Error($"SlackWebHook Failed. <WebHookUrl:{webHook.HookUrl}> <Response:{response.StatusCode}>");
                     _slackWebHooks.Add(webHook);
                 }
-
-                Thread.Sleep(1000); // 초당 한개...라고함.
             });
         }
 

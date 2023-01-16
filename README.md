@@ -46,6 +46,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.52
+Added error message on SlackWebHook failed.
+
 ### v1.0.51
 Support forcing mongodb connection string and database settings via environment variables
 

@@ -1,7 +1,7 @@
-﻿using System;
+﻿using EzAspDotNet.Exception;
+using System;
 using System.Threading;
 using System.Threading.Tasks;
-using EzAspDotNet.Exception;
 
 namespace EzAspDotNet.Services
 {
