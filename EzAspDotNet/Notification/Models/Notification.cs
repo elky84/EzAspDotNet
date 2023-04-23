@@ -1,80 +1,65 @@
-﻿using EzAspDotNet.Notification.Types;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using EzAspDotNet.Notification.Types;
 using EzMongoDb.Models;
 using MongoDB.Bson;
 using MongoDB.Bson.Serialization.Attributes;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 
-namespace EzAspDotNet.Notification.Models
+namespace EzAspDotNet.Notification.Models;
+
+// ReSharper disable once ClassNeverInstantiated.Global
+public class Notification : MongoDbHeader
 {
-    public class Notification : MongoDbHeader
+    [BsonRepresentation(BsonType.String)] public NotificationType Type { get; init; }
+
+    public string Name { get; init; }
+
+    public string HookUrl { get; init; }
+
+    public string Channel { get; init; }
+
+    public string IconUrl { get; init; }
+
+    public string SourceId { get; set; }
+
+
+    public string CrawlingType { get; init; }
+
+    [BsonRepresentation(BsonType.String)] private List<DayOfWeek> FilterDayOfWeeks { get; } = new();
+
+    public string Keyword { get; init; }
+
+    public string Prefix { get; init; }
+
+    public string Postfix { get; init; }
+
+    public string FilterKeyword { get; init; }
+
+    public string FilterStartTime { get; init; }
+
+    public string FilterEndTime { get; init; }
+
+    public bool ContainsKeyword(string check)
     {
-        [BsonRepresentation(BsonType.String)]
-        public NotificationType Type { get; set; }
+        return !string.IsNullOrEmpty(Keyword) && Keyword.Split("|").Any(check.Contains);
+    }
 
-        public string Name { get; set; }
+    public bool ContainsFilterKeyword(string check)
+    {
+        return !string.IsNullOrEmpty(check) &&
+               (string.IsNullOrEmpty(FilterKeyword) || FilterKeyword.Split("|").Any(check.Contains));
+    }
 
-        public string HookUrl { get; set; }
+    public bool FilteredTime(DateTime dateTime)
+    {
+        if (FilterDayOfWeeks == null || !FilterDayOfWeeks.Contains(dateTime.DayOfWeek)) return false;
 
-        public string Channel { get; set; }
+        if (string.IsNullOrEmpty(FilterStartTime) || string.IsNullOrEmpty(FilterEndTime)) return false;
 
-        public string IconUrl { get; set; }
+        var startTime = DateTime.Parse(FilterStartTime);
+        var endTime = DateTime.Parse(FilterEndTime);
 
-        public string SourceId { get; set; }
-
-        public string CrawlingType { get; set; }
-
-        [BsonRepresentation(BsonType.String)]
-        public List<DayOfWeek> FilterDayOfWeeks { get; set; } = new List<DayOfWeek>();
-        public string Keyword { get; set; }
-
-        public string Prefix { get; set; }
-
-        public string Postfix { get; set; }
-
-        public string FilterKeyword { get; set; }
-
-        public string FilterStartTime { get; set; }
-
-        public string FilterEndTime { get; set; }
-
-        public bool ContainsKeyword(string check)
-        {
-            if (string.IsNullOrEmpty(Keyword))
-            {
-                return false;
-            }
-
-            return Keyword.Split("|").Any(x => check.Contains(x));
-        }
-
-        public bool ContainsFilterKeyword(string check)
-        {
-            if (string.IsNullOrEmpty(FilterKeyword))
-            {
-                return true;
-            }
-
-            return FilterKeyword.Split("|").Any(x => check.Contains(x));
-        }
-
-        public bool FilteredTime(DateTime dateTime)
-        {
-            if (FilterDayOfWeeks == null || !FilterDayOfWeeks.Contains(dateTime.DayOfWeek))
-            {
-                return false;
-            }
-
-            if (string.IsNullOrEmpty(FilterStartTime) || string.IsNullOrEmpty(FilterEndTime))
-            {
-                return false;
-            }
-
-            var startTime = DateTime.Parse(FilterStartTime);
-            var endTime = DateTime.Parse(FilterEndTime);
-
-            return startTime < dateTime && endTime > dateTime;
-        }
+        return startTime < dateTime && endTime > dateTime;
     }
 }
