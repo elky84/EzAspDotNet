@@ -57,19 +57,19 @@ public class WebHookService
         List<WebHook> webHooks)
     {
         var notifications = await Get(filter);
-        foreach (var notification in notifications.Where(notification =>
-                         webHooks.All(x => notification.ContainsFilterKeyword(x.Title)))
-                     .Where(notification => !notification.FilteredTime(DateTime.Now)))
+        foreach (var notification in notifications.Where(notification => !notification.FilteredTime(DateTime.Now)))
         {
-            webHooks.ForEach(x =>
-            {
-                if (!notification.ContainsKeyword(x.Title)) return;
-                if (!string.IsNullOrEmpty(notification.Prefix))
-                    x.Title = notification.Prefix + x.Title;
+            var filteredWebHooks = webHooks.Where(x => !notification.ContainsFilterKeyword(x.Title))
+                .Select(x =>
+                {
+                    if (!string.IsNullOrEmpty(notification.Prefix))
+                        x.Title = notification.Prefix + x.Title;
 
-                if (!string.IsNullOrEmpty(notification.Postfix))
-                    x.Title += notification.Postfix;
-            });
+                    if (!string.IsNullOrEmpty(notification.Postfix))
+                        x.Title += notification.Postfix;
+
+                    return x;
+                }).ToList();
 
             switch (notification.Type)
             {
@@ -80,12 +80,12 @@ public class WebHookService
                         lock (origin.Embeds)
                         {
                             if (origin.Embeds.Count > 50)
-                                _discordWebHooks.Add(DiscordNotify(notification, webHooks));
+                                _discordWebHooks.Add(DiscordNotify(notification, filteredWebHooks));
                             else
-                                origin.Embeds.AddRange(webHooks.ConvertAll(DiscordWebHook.Convert));
+                                origin.Embeds.AddRange(filteredWebHooks.ConvertAll(DiscordWebHook.Convert));
                         }
                     else
-                        _discordWebHooks.Add(DiscordNotify(notification, webHooks));
+                        _discordWebHooks.Add(DiscordNotify(notification, filteredWebHooks));
                 }
                     break;
                 case NotificationType.Slack:
@@ -96,12 +96,12 @@ public class WebHookService
                         lock (origin.Attachments)
                         {
                             if (origin.Attachments.Count > 50)
-                                _slackWebHooks.Add(SlackNotify(notification, webHooks));
+                                _slackWebHooks.Add(SlackNotify(notification, filteredWebHooks));
                             else
-                                origin.Attachments.AddRange(webHooks.ConvertAll(SlackAttachment.Convert));
+                                origin.Attachments.AddRange(filteredWebHooks.ConvertAll(SlackAttachment.Convert));
                         }
                     else
-                        _slackWebHooks.Add(SlackNotify(notification, webHooks));
+                        _slackWebHooks.Add(SlackNotify(notification, filteredWebHooks));
                 }
                     break;
                 default:

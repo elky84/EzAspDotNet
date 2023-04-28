@@ -28,8 +28,6 @@ public class Notification : MongoDbHeader
 
     [BsonRepresentation(BsonType.String)] private List<DayOfWeek> FilterDayOfWeeks { get; } = new();
 
-    public string Keyword { get; init; }
-
     public string Prefix { get; init; }
 
     public string Postfix { get; init; }
@@ -40,15 +38,10 @@ public class Notification : MongoDbHeader
 
     public string FilterEndTime { get; init; }
 
-    public bool ContainsKeyword(string check)
-    {
-        return !string.IsNullOrEmpty(Keyword) && Keyword.Split("|").Any(check.Contains);
-    }
-
     public bool ContainsFilterKeyword(string check)
     {
-        return !string.IsNullOrEmpty(check) &&
-               (string.IsNullOrEmpty(FilterKeyword) || FilterKeyword.Split("|").Any(check.Contains));
+        return !string.IsNullOrEmpty(check) && !string.IsNullOrEmpty(FilterKeyword) &&
+               FilterKeyword.Split("|").Any(check.Contains);
     }
 
     public bool FilteredTime(DateTime dateTime)

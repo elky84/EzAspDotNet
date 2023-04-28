@@ -47,6 +47,11 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.53
+
+Fixed not operation filterKeyword errors.
+And remove keyword variable in Notification.
+
 ### v1.0.52
 
 Added error message on SlackWebHook failed.
