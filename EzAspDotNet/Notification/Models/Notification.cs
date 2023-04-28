@@ -38,10 +38,9 @@ public class Notification : MongoDbHeader
 
     public string FilterEndTime { get; init; }
 
-    public bool ContainsFilterKeyword(string check)
+    public bool CheckFilterKeyword(string check)
     {
-        return !string.IsNullOrEmpty(check) && !string.IsNullOrEmpty(FilterKeyword) &&
-               FilterKeyword.Split("|").Any(check.Contains);
+        return string.IsNullOrEmpty(FilterKeyword) || !FilterKeyword.Split("|").Any(check.Contains);
     }
 
     public bool FilteredTime(DateTime dateTime)

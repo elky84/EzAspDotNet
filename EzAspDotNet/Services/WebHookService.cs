@@ -59,7 +59,7 @@ public class WebHookService
         var notifications = await Get(filter);
         foreach (var notification in notifications.Where(notification => !notification.FilteredTime(DateTime.Now)))
         {
-            var filteredWebHooks = webHooks.Where(x => !notification.ContainsFilterKeyword(x.Title))
+            var filteredWebHooks = webHooks.Where(x => notification.CheckFilterKeyword(x.Title))
                 .Select(x =>
                 {
                     if (!string.IsNullOrEmpty(notification.Prefix))
