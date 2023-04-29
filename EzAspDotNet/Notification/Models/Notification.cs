@@ -43,7 +43,7 @@ public class Notification : MongoDbHeader
 
     public bool ContainsKeyword(string check)
     {
-        return !string.IsNullOrEmpty(Keyword) && Keyword.Split("|").Any(check.Contains);
+        return string.IsNullOrEmpty(Keyword) || Keyword.Split("|").Any(check.Contains);
     }
 
     public bool CheckFilterKeyword(string check)

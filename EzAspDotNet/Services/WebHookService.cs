@@ -72,6 +72,9 @@ public class WebHookService
                     return x;
                 }).ToList();
 
+            if (filteredWebHooks.Count <= 0)
+                continue;
+
             switch (notification.Type)
             {
                 case NotificationType.Discord:
