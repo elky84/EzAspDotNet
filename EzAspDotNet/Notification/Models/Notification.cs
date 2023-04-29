@@ -32,11 +32,19 @@ public class Notification : MongoDbHeader
 
     public string Postfix { get; init; }
 
+
+    public string Keyword { get; init; }
+
     public string FilterKeyword { get; init; }
 
     public string FilterStartTime { get; init; }
 
     public string FilterEndTime { get; init; }
+
+    public bool ContainsKeyword(string check)
+    {
+        return !string.IsNullOrEmpty(Keyword) && Keyword.Split("|").Any(check.Contains);
+    }
 
     public bool CheckFilterKeyword(string check)
     {

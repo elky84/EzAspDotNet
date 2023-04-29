@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.55
+
+Recovery of the ability to blow web hooks only for data containing specific keywords
+
 ### v1.0.53, v1.0.54
 
 Fixed not operation filterKeyword errors.
