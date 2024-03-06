@@ -1,5 +1,5 @@
 [![Website](https://img.shields.io/website-up-down-green-red/http/shields.io.svg?label=elky-essay)](https://elky84.github.io)
-![Made with](https://img.shields.io/badge/made%20with-.NET7-blue.svg)
+![Made with](https://img.shields.io/badge/made%20with-.NET8-blue.svg)
 
 [![Publish Nuget Github Package](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_github.yml/badge.svg)](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_github.yml)
 [![Publish Nuget Package](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_nuget.yml/badge.svg)](https://github.com/elky84/EzAspDotNet/actions/workflows/publish_nuget.yml)
@@ -19,7 +19,7 @@
 
 Easily usable with ASP.NET (Core or later).
 
-Implemented by C# .NET 7.
+Implemented by C# .NET 8
 
 The purpose of this project is to easily build and operate a ASP.NET web server.
 
@@ -46,6 +46,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 <https://www.nuget.org/packages/EzAspDotNet/>
 
 ## version history
+
+### v1.0.57
+
+use .NET 8
 
 ### v1.0.55, v1.0.56
 
