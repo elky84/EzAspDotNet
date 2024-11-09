@@ -5,14 +5,8 @@ using System.Threading.Tasks;
 
 namespace EzAspDotNet.Services
 {
-    public class WebHookLoopingService : LoopingService
+    public class WebHookLoopingService(WebHookService webHookService) : LoopingService
     {
-        private readonly WebHookService _webHookService;
-
-        public WebHookLoopingService(WebHookService webHookService)
-        {
-            _webHookService = webHookService;
-        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -20,7 +14,7 @@ namespace EzAspDotNet.Services
             {
                 try
                 {
-                    _webHookService.HttpTaskRun();
+                    await webHookService.HttpTaskRun();
                 }
                 catch (System.Exception e)
                 {
