@@ -21,7 +21,7 @@ namespace EzAspDotNet.Services
                     e.ExceptionLog();
                 }
 
-                await Task.Delay(TimeSpan.FromSeconds(1), stoppingToken);
+                await Task.Delay(TimeSpan.FromSeconds(5), stoppingToken);
             }
         }
     }

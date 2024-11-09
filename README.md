@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.60
+
+WebHookLoopingService HttpTaskRun Interval to 5sec
+
 ### v1.0.59
 
 fixed WebHookLoopingService HttpTaskRun to Async (await)
