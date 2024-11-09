@@ -1,12 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net;
-using System.Net.Http;
-using System.Threading;
-using System.Threading.Tasks;
-using EzAspDotNet.Exception;
+﻿using EzAspDotNet.Exception;
 using EzAspDotNet.HttpClient;
 using EzAspDotNet.Notification.Data;
 using EzAspDotNet.Notification.Protocols.Request;
@@ -16,195 +8,202 @@ using EzAspDotNet.Util;
 using EzMongoDb.Util;
 using MongoDB.Driver;
 using Serilog;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Threading;
+using System.Threading.Tasks;
+using DiscordWebHook = EzAspDotNet.Notification.Models.DiscordWebHook;
+using SlackWebHook = EzAspDotNet.Notification.Models.SlackWebHook;
 
-namespace EzAspDotNet.Services;
-
-// ReSharper disable once ClassNeverInstantiated.Global
-public class WebHookService
+namespace EzAspDotNet.Services
 {
-    private readonly ConcurrentBag<DiscordWebHook> _discordWebHooks = new();
-
-    private readonly HttpClientService _httpClientService;
-    private readonly MongoDbUtil<Notification.Models.Notification> _mongoDbNotification;
-
-    private readonly ConcurrentBag<SlackWebHook> _slackWebHooks = new();
-
-    public WebHookService(MongoDbService mongoDbService,
-        HttpClientService httpClientService)
+    // ReSharper disable once ClassNeverInstantiated.Global
+    public class WebHookService
     {
-        _mongoDbNotification = new MongoDbUtil<Notification.Models.Notification>(mongoDbService.Database);
-        _httpClientService = httpClientService;
+        private readonly HttpClientService _httpClientService;
 
-        _mongoDbNotification.Collection.Indexes.CreateOne(new CreateIndexModel<Notification.Models.Notification>(
-            Builders<Notification.Models.Notification>.IndexKeys.Ascending(x => x.SourceId)
-                .Ascending(x => x.Type)));
-    }
+        private readonly MongoDbUtil<DiscordWebHook> _mongoDbDiscordWebHook;
+        private readonly MongoDbUtil<Notification.Models.Notification> _mongoDbNotification;
+        private readonly MongoDbUtil<SlackWebHook> _mongoDbSlackWebHook;
 
-    private async Task<List<Notification.Models.Notification>> Get(
-        FilterDefinition<Notification.Models.Notification> filter)
-    {
-        return await _mongoDbNotification.FindAsync(filter);
-    }
-
-    public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
-        WebHook webHook)
-    {
-        await Execute(filter, new List<WebHook> { webHook });
-    }
-
-    // ReSharper disable once MemberCanBePrivate.Global
-    public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
-        List<WebHook> webHooks)
-    {
-        var notifications = await Get(filter);
-        foreach (var notification in notifications.Where(notification => !notification.FilteredTime(DateTime.Now)))
+        public WebHookService(MongoDbService mongoDbService,
+            HttpClientService httpClientService)
         {
-            var filteredWebHooks = webHooks.Where(x => notification.CheckFilterKeyword(x.Title) &&
-                                                       notification.ContainsKeyword(x.Title))
-                .Select(x =>
-                {
-                    if (!string.IsNullOrEmpty(notification.Prefix))
-                        x.Title = notification.Prefix + x.Title;
+            _mongoDbNotification = new MongoDbUtil<Notification.Models.Notification>(mongoDbService.Database);
+            _mongoDbDiscordWebHook = new MongoDbUtil<DiscordWebHook>(mongoDbService.Database);
+            _mongoDbSlackWebHook = new MongoDbUtil<SlackWebHook>(mongoDbService.Database);
 
-                    if (!string.IsNullOrEmpty(notification.Postfix))
-                        x.Title += notification.Postfix;
+            _httpClientService = httpClientService;
 
-                    return x;
-                }).ToList();
+            _mongoDbNotification.Collection.Indexes.CreateOne(new CreateIndexModel<Notification.Models.Notification>(
+                Builders<Notification.Models.Notification>.IndexKeys.Ascending(x => x.SourceId)
+                    .Ascending(x => x.Type)));
+        }
 
-            if (filteredWebHooks.Count <= 0)
-                continue;
+        private async Task<List<Notification.Models.Notification>> Get(
+            FilterDefinition<Notification.Models.Notification> filter)
+        {
+            return await _mongoDbNotification.FindAsync(filter);
+        }
 
-            switch (notification.Type)
+        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
+            WebHook webHook)
+        {
+            await Execute(filter, new List<WebHook> { webHook });
+        }
+
+        // ReSharper disable once MemberCanBePrivate.Global
+        public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
+            List<WebHook> webHooks)
+        {
+            var notifications = await Get(filter);
+            foreach (var notification in notifications.Where(notification => !notification.FilteredTime(DateTime.Now)))
             {
-                case NotificationType.Discord:
+                var filteredWebHooks = webHooks.Where(x => notification.CheckFilterKeyword(x.Title) &&
+                                                           notification.ContainsKeyword(x.Title))
+                    .Select(x =>
+                    {
+                        if (!string.IsNullOrEmpty(notification.Prefix))
+                            x.Title = notification.Prefix + x.Title;
+
+                        if (!string.IsNullOrEmpty(notification.Postfix))
+                            x.Title += notification.Postfix;
+
+                        return x;
+                    }).ToList();
+
+                if (filteredWebHooks.Count <= 0)
+                    continue;
+
+                switch (notification.Type)
                 {
-                    var origin = _discordWebHooks.LastOrDefault(x => x.HookUrl == notification.HookUrl);
-                    if (origin != null)
-                        lock (origin.Embeds)
-                        {
-                            if (origin.Embeds.Count > 50)
-                                _discordWebHooks.Add(DiscordNotify(notification, filteredWebHooks));
-                            else
-                                origin.Embeds.AddRange(filteredWebHooks.ConvertAll(DiscordWebHook.Convert));
-                        }
-                    else
-                        _discordWebHooks.Add(DiscordNotify(notification, filteredWebHooks));
+                    case NotificationType.Discord:
+                    {
+                        await _mongoDbDiscordWebHook.CreateAsync(new DiscordWebHook
+                            { Data = DiscordNotify(notification, filteredWebHooks) });
+                    }
+                        break;
+                    case NotificationType.Slack:
+                    {
+                        await _mongoDbSlackWebHook.CreateAsync(new SlackWebHook
+                            { Data = SlackNotify(notification, filteredWebHooks) });
+                    }
+                        break;
+                    default:
+                        throw new DeveloperException(ResultCode.NotImplementedYet);
                 }
-                    break;
-                case NotificationType.Slack:
-                {
-                    var origin = _slackWebHooks.LastOrDefault(x => x.HookUrl == notification.HookUrl &&
-                                                                   x.Channel == notification.Channel);
-                    if (origin != null)
-                        lock (origin.Attachments)
-                        {
-                            if (origin.Attachments.Count > 50)
-                                _slackWebHooks.Add(SlackNotify(notification, filteredWebHooks));
-                            else
-                                origin.Attachments.AddRange(filteredWebHooks.ConvertAll(SlackAttachment.Convert));
-                        }
-                    else
-                        _slackWebHooks.Add(SlackNotify(notification, filteredWebHooks));
-                }
-                    break;
-                default:
-                    throw new DeveloperException(ResultCode.NotImplementedYet);
             }
         }
-    }
 
-    private static SlackWebHook SlackNotify(Notification.Models.Notification notification,
-        List<WebHook> webHooks)
-    {
-        return new SlackWebHook
+        private static Notification.Protocols.Request.SlackWebHook SlackNotify(
+            Notification.Models.Notification notification,
+            List<WebHook> webHooks)
         {
-            Channel = notification.Channel,
-            IconUrl = notification.IconUrl,
-            HookUrl = notification.HookUrl,
-            UserName = notification.Name,
-            Attachments = webHooks.ConvertAll(SlackAttachment.Convert)
-        };
-    }
-
-    private static DiscordWebHook DiscordNotify(Notification.Models.Notification notification,
-        List<WebHook> webHooks)
-    {
-        return new DiscordWebHook
-        {
-            UserName = notification.Name,
-            AvatarUrl = notification.IconUrl,
-            HookUrl = notification.HookUrl,
-            Embeds = webHooks.ConvertAll(DiscordWebHook.Convert)
-        };
-    }
-
-    private void ProcessSlackWebHooks()
-    {
-        var cloneList = _slackWebHooks.ToList();
-        _slackWebHooks.Clear();
-
-        Parallel.ForEach(cloneList, async webHook =>
-        {
-            var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook);
-            if (response.IsSuccessStatusCode) return;
-
-            Log.Logger.Error("SlackWebHook Failed. <WebHookUrl:{WebHookHookUrl}> <Response:{ResponseStatusCode}>",
-                webHook.HookUrl, response.StatusCode);
-            _slackWebHooks.Add(webHook);
-        });
-    }
-
-    private void ProcessDiscordWebHooks()
-    {
-        var cloneList = _discordWebHooks.ToList();
-        _discordWebHooks.Clear();
-
-        Parallel.ForEach(cloneList, webHook =>
-        {
-            try
+            return new Notification.Protocols.Request.SlackWebHook
             {
-                var response = _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.HookUrl, webHook).Result;
-                if (response?.Headers == null)
-                {
-                    _discordWebHooks.Add(webHook);
-                    Thread.Sleep(1000);
-                    return;
-                }
+                Channel = notification.Channel,
+                IconUrl = notification.IconUrl,
+                HookUrl = notification.HookUrl,
+                UserName = notification.Name,
+                Attachments = webHooks.ConvertAll(SlackAttachment.Convert)
+            };
+        }
 
-                if (!response.Headers.Contains("x-ratelimit-remaining") ||
-                    !response.Headers.Contains("x-ratelimit-reset-after"))
-                {
-                    _discordWebHooks.Add(webHook);
-                    Thread.Sleep(1000);
-                    return;
-                }
-
-                var rateLimitRemaining = response.Headers.GetValues("x-ratelimit-remaining").FirstOrDefault().ToInt();
-                var rateLimitAfter = response.Headers.GetValues("x-ratelimit-reset-after").FirstOrDefault().ToInt();
-                if (!response.IsSuccessStatusCode)
-                {
-                    if (response.StatusCode == HttpStatusCode.TooManyRequests)
-                        Log.Logger.Error(
-                            "Too Many Requests [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]",
-                            webHook.HookUrl, rateLimitRemaining, rateLimitAfter);
-
-                    _discordWebHooks.Add(webHook);
-                }
-
-                if (rateLimitRemaining <= 1 || rateLimitAfter > 0) Thread.Sleep((rateLimitAfter + 1) * 1000);
-            }
-            catch (System.Exception e)
+        private static Notification.Protocols.Request.DiscordWebHook DiscordNotify(
+            Notification.Models.Notification notification,
+            List<WebHook> webHooks)
+        {
+            return new Notification.Protocols.Request.DiscordWebHook
             {
-                e.ExceptionLog();
-                Thread.Sleep(1000);
-            }
-        });
-    }
+                UserName = notification.Name,
+                AvatarUrl = notification.IconUrl,
+                HookUrl = notification.HookUrl,
+                Embeds = webHooks.ConvertAll(Notification.Protocols.Request.DiscordWebHook.Convert)
+            };
+        }
 
-    public void HttpTaskRun()
-    {
-        ProcessDiscordWebHooks();
-        ProcessSlackWebHooks();
+        private async Task ProcessSlackWebHooks()
+        {
+            var webHooks = await _mongoDbSlackWebHook.FindAsync();
+            foreach (var webHook in webHooks)
+            {
+                try
+                {
+                    var response =
+                        await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.Data.HookUrl,
+                            webHook.Data);
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        Log.Logger.Error("SlackWebHook Failed. <WebHookUrl:{WebHookHookUrl}> <Response:{ResponseStatusCode}>",
+                            webHook.Data.HookUrl, response.StatusCode);
+                        return;
+                    }
+
+                    await _mongoDbSlackWebHook.RemoveAsync(webHook.Id);
+                }
+                catch (System.Exception e)
+                {
+                    e.ExceptionLog();
+                    Thread.Sleep(1000);
+                }
+            }
+        }
+
+        private async Task ProcessDiscordWebHooks()
+        {
+            var webHooks = await _mongoDbDiscordWebHook.FindAsync();
+            foreach (var webHook in webHooks)
+            {
+                try
+                {
+                    var response = _httpClientService.Factory
+                        .RequestJson(HttpMethod.Post, webHook.Data.HookUrl, webHook.Data).Result;
+                    if (response?.Headers == null)
+                    {
+                        Thread.Sleep(1000);
+                        return;
+                    }
+
+                    if (!response.Headers.Contains("x-ratelimit-remaining") ||
+                        !response.Headers.Contains("x-ratelimit-reset-after"))
+                    {
+                        Thread.Sleep(1000);
+                        return;
+                    }
+
+                    var rateLimitRemaining = response.Headers.GetValues("x-ratelimit-remaining").FirstOrDefault().ToInt();
+                    var rateLimitAfter = response.Headers.GetValues("x-ratelimit-reset-after").FirstOrDefault().ToInt();
+                    if (!response.IsSuccessStatusCode)
+                    {
+                        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                            Log.Logger.Error(
+                                "Too Many Requests [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]",
+                                webHook.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
+
+                        return;
+                    }
+
+                    if (rateLimitRemaining <= 1 || rateLimitAfter > 0)
+                        Thread.Sleep((rateLimitAfter + 1) * 1000);
+
+                    await _mongoDbDiscordWebHook.RemoveAsync(webHook.Id);
+                }
+                catch (System.Exception e)
+                {
+                    e.ExceptionLog();
+                    Thread.Sleep(1000);
+                }
+            }
+
+        }
+
+        public async Task HttpTaskRun()
+        {
+            await ProcessDiscordWebHooks();
+            await ProcessSlackWebHooks();
+        }
     }
 }

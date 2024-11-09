@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.58
+
+webhook use in-memory to mongo db.
+
 ### v1.0.57
 
 use .NET 8
