@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.61
+
+upgrade EzMongoDb version v1.0.4
+
 ### v1.0.60
 
 WebHookLoopingService HttpTaskRun Interval to 5sec
