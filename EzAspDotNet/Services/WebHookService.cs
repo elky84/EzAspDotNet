@@ -1,6 +1,7 @@
 ﻿using EzAspDotNet.Exception;
 using EzAspDotNet.HttpClient;
 using EzAspDotNet.Notification.Data;
+using EzAspDotNet.Notification.Models;
 using EzAspDotNet.Notification.Protocols.Request;
 using EzAspDotNet.Notification.Types;
 using EzAspDotNet.Protocols.Code;
@@ -52,7 +53,10 @@ namespace EzAspDotNet.Services
         public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
             WebHook webHook)
         {
-            await Execute(filter, new List<WebHook> { webHook });
+            await Execute(filter, new List<WebHook>
+            {
+                webHook
+            });
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -83,13 +87,17 @@ namespace EzAspDotNet.Services
                     case NotificationType.Discord:
                     {
                         await _mongoDbDiscordWebHook.CreateAsync(new DiscordWebHook
-                            { Data = DiscordNotify(notification, filteredWebHooks) });
+                        {
+                            Data = DiscordNotify(notification, filteredWebHooks)
+                        });
                     }
                         break;
                     case NotificationType.Slack:
                     {
                         await _mongoDbSlackWebHook.CreateAsync(new SlackWebHook
-                            { Data = SlackNotify(notification, filteredWebHooks) });
+                        {
+                            Data = SlackNotify(notification, filteredWebHooks)
+                        });
                     }
                         break;
                     default:
@@ -128,21 +136,55 @@ namespace EzAspDotNet.Services
         private async Task ProcessSlackWebHooks()
         {
             var webHooks = await _mongoDbSlackWebHook.FindAsync();
-            foreach (var webHook in webHooks)
+            var webHookGroups = webHooks
+                .GroupBy(w => w.Data.HookUrl)
+                .SelectMany(g =>
+                {
+                    var batches = g.Select((webhook, index) => new
+                        {
+                            webhook,
+                            index
+                        })
+                        .GroupBy(x => x.index / 50, x => x.webhook);
+
+                    var processedBatches = new List<SlackWebHookGroup>();
+
+                    foreach (var batch in batches)
+                    {
+                        var firstWebhookWithEmbedsAndIds = new SlackWebHookGroup
+                        {
+                            Data = batch.First().Data,
+                            GroupedIds = batch.Select(b => b.Id).ToList()
+                        };
+
+                        foreach (var webhook in batch.Skip(1))
+                        {
+                            firstWebhookWithEmbedsAndIds.Data.Attachments.AddRange(webhook.Data.Attachments);
+                        }
+
+                        processedBatches.Add(firstWebhookWithEmbedsAndIds);
+                    }
+
+                    return processedBatches;
+                })
+                .ToList();
+
+            foreach (var webHookGroup in webHookGroups)
             {
                 try
                 {
                     var response =
-                        await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.Data.HookUrl,
-                            webHook.Data);
+                        await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHookGroup.Data.HookUrl,
+                            webHookGroup.Data);
                     if (!response.IsSuccessStatusCode)
                     {
                         Log.Logger.Error("SlackWebHook Failed. <WebHookUrl:{WebHookHookUrl}> <Response:{ResponseStatusCode}>",
-                            webHook.Data.HookUrl, response.StatusCode);
+                            webHookGroup.Data.HookUrl, response.StatusCode);
                         return;
                     }
 
-                    await _mongoDbSlackWebHook.RemoveAsync(webHook.Id);
+                    foreach (var id in webHookGroup.GroupedIds)
+                        await _mongoDbSlackWebHook.RemoveAsync(id);
                 }
                 catch (System.Exception e)
                 {
@@ -155,6 +197,39 @@ namespace EzAspDotNet.Services
         private async Task ProcessDiscordWebHooks()
         {
             var webHooks = await _mongoDbDiscordWebHook.FindAsync();
+            var webHookGroups = webHooks
+                .GroupBy(w => w.Data.HookUrl)
+                .SelectMany(g =>
+                {
+                    var batches = g.Select((webhook, index) => new
+                        {
+                            webhook,
+                            index
+                        })
+                        .GroupBy(x => x.index / 50, x => x.webhook);
+
+                    var processedBatches = new List<DiscordWebHookGroup>();
+
+                    foreach (var batch in batches)
+                    {
+                        var firstWebhookWithEmbedsAndIds = new DiscordWebHookGroup
+                        {
+                            Data = batch.First().Data,
+                            GroupedIds = batch.Select(b => b.Id).ToList()
+                        };
+
+                        foreach (var webhook in batch.Skip(1))
+                        {
+                            firstWebhookWithEmbedsAndIds.Data.Embeds.AddRange((IEnumerable<Notification.Protocols.Request.DiscordWebHook.Embed>)webhook.Data);
+                        }
+
+                        processedBatches.Add(firstWebhookWithEmbedsAndIds);
+                    }
+
+                    return processedBatches;
+                })
+                .ToList();
+
             foreach (var webHook in webHooks)
             {
                 try
