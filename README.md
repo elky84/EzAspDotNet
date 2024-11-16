@@ -47,6 +47,12 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.63
+
+upgrade to dotnet 9.
+update using packages.
+remove rabbitmq extends.
+
 ### v1.0.62
 
 collect and send notification messages
