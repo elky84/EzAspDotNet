@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.64
+
+change notification collect rule by hook-url and channel. (slack)
+
 ### v1.0.63
 
 upgrade to dotnet 9.

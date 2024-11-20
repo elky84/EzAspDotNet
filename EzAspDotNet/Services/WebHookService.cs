@@ -137,7 +137,7 @@ namespace EzAspDotNet.Services
         {
             var webHooks = await _mongoDbSlackWebHook.FindAsync();
             var webHookGroups = webHooks
-                .GroupBy(w => w.Data.HookUrl)
+                .GroupBy(w => w.Data.Channel)
                 .SelectMany(g =>
                 {
                     var batches = g.Select((webhook, index) => new
