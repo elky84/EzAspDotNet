@@ -53,10 +53,7 @@ namespace EzAspDotNet.Services
         public async Task Execute(FilterDefinition<Notification.Models.Notification> filter,
             WebHook webHook)
         {
-            await Execute(filter, new List<WebHook>
-            {
-                webHook
-            });
+            await Execute(filter, [webHook]);
         }
 
         // ReSharper disable once MemberCanBePrivate.Global
@@ -137,7 +134,7 @@ namespace EzAspDotNet.Services
         {
             var webHooks = await _mongoDbSlackWebHook.FindAsync();
             var webHookGroups = webHooks
-                .GroupBy(w => w.Data.Channel)
+                .GroupBy(w => new { w.Data.Channel, w.Data.UserName })
                 .SelectMany(g =>
                 {
                     var batches = g.Select((webhook, index) => new
@@ -198,7 +195,7 @@ namespace EzAspDotNet.Services
         {
             var webHooks = await _mongoDbDiscordWebHook.FindAsync();
             var webHookGroups = webHooks
-                .GroupBy(w => w.Data.HookUrl)
+                .GroupBy(w => new { w.Data.HookUrl, w.Data.UserName })
                 .SelectMany(g =>
                 {
                     var batches = g.Select((webhook, index) => new
@@ -220,7 +217,7 @@ namespace EzAspDotNet.Services
 
                         foreach (var webhook in batch.Skip(1))
                         {
-                            firstWebhookWithEmbedsAndIds.Data.Embeds.AddRange((IEnumerable<Notification.Protocols.Request.DiscordWebHook.Embed>)webhook.Data);
+                            firstWebhookWithEmbedsAndIds.Data.Embeds.AddRange(webhook.Data.Embeds);
                         }
 
                         processedBatches.Add(firstWebhookWithEmbedsAndIds);
