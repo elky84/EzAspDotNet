@@ -15,7 +15,7 @@ namespace EzAspDotNet.Notification.Protocols.Request
         public string UserName { get; set; }
 
         [JsonProperty("attachments")]
-        public List<SlackAttachment> Attachments { get; set; } = new();
+        public List<SlackAttachment> Attachments { get; set; } = [];
 
         [JsonIgnore]
         public string HookUrl { get; set; }

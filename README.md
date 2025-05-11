@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.67
+
+fixed discord webhook embed error.
+
 ### v1.0.66
 
 web hook group by channel -> group by channel and username. 

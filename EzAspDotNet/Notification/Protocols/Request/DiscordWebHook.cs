@@ -93,8 +93,7 @@ namespace EzAspDotNet.Notification.Protocols.Request
         [JsonProperty("avatar_url")]
         public string AvatarUrl { get; set; }
 
-        [JsonProperty("embeds")]
-        public List<Embed> Embeds { get; set; }
+        [JsonProperty("embeds")] public List<Embed> Embeds { get; set; } = [];
 
         [JsonIgnore]
         public string HookUrl { get; set; }

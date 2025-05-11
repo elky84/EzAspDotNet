@@ -227,12 +227,12 @@ namespace EzAspDotNet.Services
                 })
                 .ToList();
 
-            foreach (var webHook in webHooks)
+            foreach (var webHookGroup in webHookGroups)
             {
                 try
                 {
-                    var response = _httpClientService.Factory
-                        .RequestJson(HttpMethod.Post, webHook.Data.HookUrl, webHook.Data).Result;
+                    var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHookGroup.Data.HookUrl,
+                            webHookGroup.Data);
                     if (response?.Headers == null)
                     {
                         Thread.Sleep(1000);
@@ -253,7 +253,7 @@ namespace EzAspDotNet.Services
                         if (response.StatusCode == HttpStatusCode.TooManyRequests)
                             Log.Logger.Error(
                                 "Too Many Requests [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]",
-                                webHook.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
+                                webHookGroup.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
 
                         return;
                     }
@@ -261,7 +261,8 @@ namespace EzAspDotNet.Services
                     if (rateLimitRemaining <= 1 || rateLimitAfter > 0)
                         Thread.Sleep((rateLimitAfter + 1) * 1000);
 
-                    await _mongoDbDiscordWebHook.RemoveAsync(webHook.Id);
+                    foreach (var id in webHookGroup.GroupedIds)
+                        await _mongoDbDiscordWebHook.RemoveAsync(id);
                 }
                 catch (System.Exception e)
                 {
