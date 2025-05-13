@@ -203,7 +203,7 @@ namespace EzAspDotNet.Services
                             webhook,
                             index
                         })
-                        .GroupBy(x => x.index / 50, x => x.webhook);
+                        .GroupBy(x => x.index / 10, x => x.webhook);
 
                     var processedBatches = new List<DiscordWebHookGroup>();
 
