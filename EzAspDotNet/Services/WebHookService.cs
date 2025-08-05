@@ -203,10 +203,10 @@ namespace EzAspDotNet.Services
                             webhook,
                             index
                         })
-                        .GroupBy(x => x.index / 10, x => x.webhook);
-
+                        .GroupBy(x => x.index / 5, x => x.webhook);
+            
                     var processedBatches = new List<DiscordWebHookGroup>();
-
+            
                     foreach (var batch in batches)
                     {
                         var firstWebhookWithEmbedsAndIds = new DiscordWebHookGroup
@@ -214,25 +214,25 @@ namespace EzAspDotNet.Services
                             Data = batch.First().Data,
                             GroupedIds = batch.Select(b => b.Id).ToList()
                         };
-
+            
                         foreach (var webhook in batch.Skip(1))
                         {
                             firstWebhookWithEmbedsAndIds.Data.Embeds.AddRange(webhook.Data.Embeds);
                         }
-
+            
                         processedBatches.Add(firstWebhookWithEmbedsAndIds);
                     }
-
+            
                     return processedBatches;
                 })
                 .ToList();
 
-            foreach (var webHookGroup in webHookGroups)
+            foreach (var webHook in webHooks)
             {
                 try
                 {
-                    var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHookGroup.Data.HookUrl,
-                            webHookGroup.Data);
+                    var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.Data.HookUrl,
+                        webHook.Data);
                     if (response?.Headers == null)
                     {
                         Thread.Sleep(1000);
@@ -253,7 +253,7 @@ namespace EzAspDotNet.Services
                         if (response.StatusCode == HttpStatusCode.TooManyRequests)
                             Log.Logger.Error(
                                 "Too Many Requests [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]",
-                                webHookGroup.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
+                                webHook.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
 
                         return;
                     }
@@ -261,8 +261,7 @@ namespace EzAspDotNet.Services
                     if (rateLimitRemaining <= 1 || rateLimitAfter > 0)
                         Thread.Sleep((rateLimitAfter + 1) * 1000);
 
-                    foreach (var id in webHookGroup.GroupedIds)
-                        await _mongoDbDiscordWebHook.RemoveAsync(id);
+                    await _mongoDbDiscordWebHook.RemoveAsync(webHook.Id);
                 }
                 catch (System.Exception e)
                 {

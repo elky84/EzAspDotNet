@@ -47,6 +47,11 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+
+### v1.0.69
+
+decrease bundle size of discord web hook. (10 -> 5)
+
 ### v1.0.68
 
 decrease bundle size of discord web hook.
