@@ -194,52 +194,13 @@ namespace EzAspDotNet.Services
         private async Task ProcessDiscordWebHooks()
         {
             var webHooks = await _mongoDbDiscordWebHook.FindAsync();
-            var webHookGroups = webHooks
-                .GroupBy(w => new { w.Data.HookUrl, w.Data.UserName })
-                .SelectMany(g =>
-                {
-                    var batches = g.Select((webhook, index) => new
-                        {
-                            webhook,
-                            index
-                        })
-                        .GroupBy(x => x.index / 5, x => x.webhook);
-            
-                    var processedBatches = new List<DiscordWebHookGroup>();
-            
-                    foreach (var batch in batches)
-                    {
-                        var firstWebhookWithEmbedsAndIds = new DiscordWebHookGroup
-                        {
-                            Data = batch.First().Data,
-                            GroupedIds = batch.Select(b => b.Id).ToList()
-                        };
-            
-                        foreach (var webhook in batch.Skip(1))
-                        {
-                            firstWebhookWithEmbedsAndIds.Data.Embeds.AddRange(webhook.Data.Embeds);
-                        }
-            
-                        processedBatches.Add(firstWebhookWithEmbedsAndIds);
-                    }
-            
-                    return processedBatches;
-                })
-                .ToList();
-
             foreach (var webHook in webHooks)
             {
                 try
                 {
-                    var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.Data.HookUrl,
-                        webHook.Data);
-                    if (response?.Headers == null)
-                    {
-                        Thread.Sleep(1000);
-                        return;
-                    }
-
-                    if (!response.Headers.Contains("x-ratelimit-remaining") ||
+                    var response = await _httpClientService.Factory.RequestJson(HttpMethod.Post, webHook.Data.HookUrl, webHook.Data);
+                    if (response?.Headers == null ||
+                        !response.Headers.Contains("x-ratelimit-remaining") ||
                         !response.Headers.Contains("x-ratelimit-reset-after"))
                     {
                         Thread.Sleep(1000);
