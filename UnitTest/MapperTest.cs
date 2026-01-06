@@ -2,6 +2,7 @@ using AutoMapper;
 using EzAspDotNet.Models;
 using NUnit.Framework;
 using System.Collections.Generic;
+using Microsoft.Extensions.Logging;
 
 namespace UnitTest
 {
@@ -24,13 +25,16 @@ namespace UnitTest
         [SetUp]
         public void Setup()
         {
-            MapperUtil.Initialize(
-                new MapperConfiguration(cfg =>
+            var loggerFactory = LoggerFactory.Create(builder =>
+            {
+                builder.AddConsole();
+            });
+
+            MapperUtil.Initialize(new MapperConfiguration(cfg =>
                 {
                     cfg.CreateMap<TestModel, TestProtocol>();
                     cfg.CreateMap<TestProtocol, TestModel>();
-                })
-            );
+                }, loggerFactory));
         }
 
         [Test]

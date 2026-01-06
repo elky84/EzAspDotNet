@@ -127,29 +127,28 @@ namespace EzAspDotNet.Notification.Protocols.Request
             return HashCode.Combine(Embeds, UserName, HookUrl);
         }
 
-        [Obsolete("Obsolete")]
         public static Embed Convert(Data.WebHook webHook)
         {
             return new Embed
             {
                 Title = webHook.Title,
-                Url = Uri.EscapeUriString(webHook.TitleLink),
+                Url = Uri.EscapeDataString(webHook.TitleLink),
                 Description = webHook.Text,
                 Author = new EmbedAuthor
                 {
                     IconUrl = webHook.AuthorIcon,
                     Name = webHook.Author,
-                    Url = Uri.EscapeUriString(webHook.AuthorLink),
+                    Url = Uri.EscapeDataString(webHook.AuthorLink),
                 },
                 TimeStamp = webHook.TimeStamp?.ToDateTime().ToUniversalIso8601(),
                 Footer = new EmbedFooter
                 {
-                    IconUrl = Uri.EscapeUriString(webHook.FooterIcon),
+                    IconUrl = Uri.EscapeDataString(webHook.FooterIcon),
                     Text = webHook.Footer
                 },
                 Image = new EmbedImage
                 {
-                    Url = Uri.EscapeUriString(webHook.ImageUrl),
+                    Url = Uri.EscapeDataString(webHook.ImageUrl),
                 },
                 Color = int.Parse(webHook.Color[1..], System.Globalization.NumberStyles.HexNumber),
                 Fields = webHook.Fields.ConvertAll(EmbedField.Convert)
