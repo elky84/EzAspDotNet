@@ -211,12 +211,19 @@ namespace EzAspDotNet.Services
                     var rateLimitAfter = response.Headers.GetValues("x-ratelimit-reset-after").FirstOrDefault().ToInt();
                     if (!response.IsSuccessStatusCode)
                     {
-                        if (response.StatusCode == HttpStatusCode.TooManyRequests)
+                        if (response.StatusCode == HttpStatusCode.BadRequest)
+                        {
                             Log.Logger.Error(
-                                "Too Many Requests [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]",
-                                webHook.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
-
-                        return;
+                                "Bad Requests [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]", webHook.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
+                        }
+                        else
+                        {
+                            var responseMessage = await response.Content.ReadAsStringAsync();
+                            Log.Logger.Error(
+                                "Failed ({response.StatusCod}) ({responseMessage}) [{WebHookHookUrl}] [{RateLimitRemaining}, {RateLimitAfter}]",
+                                response.StatusCode, responseMessage, webHook.Data.HookUrl, rateLimitRemaining, rateLimitAfter);
+                            return;
+                        }
                     }
 
                     if (rateLimitRemaining <= 1 || rateLimitAfter > 0)

@@ -47,6 +47,9 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.0.70
+
+If the webhook message is a bad request, leave a log and discard it.
 
 ### v1.0.69
 
