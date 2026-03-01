@@ -47,6 +47,10 @@ The purpose of this project is to easily build and operate a ASP.NET web server.
 
 ## version history
 
+### v1.1.2
+
+reinforce webhook safe embed rules.
+
 ### v1.1.1
 
 webhook safe Uri.EscapeDataString, and logging, rethrow.

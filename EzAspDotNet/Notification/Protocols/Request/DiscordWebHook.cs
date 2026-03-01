@@ -2,6 +2,7 @@
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace EzAspDotNet.Notification.Protocols.Request
 {
@@ -129,30 +130,94 @@ namespace EzAspDotNet.Notification.Protocols.Request
 
         public static Embed Convert(Data.WebHook webHook)
         {
-            return new Embed
+            var embed = new Embed
             {
                 Title = webHook.Title,
-                Url = Uri.EscapeDataString(webHook.TitleLink ?? string.Empty),
-                Description = webHook.Text,
-                Author = new EmbedAuthor
-                {
-                    IconUrl = webHook.AuthorIcon,
-                    Name = webHook.Author,
-                    Url = Uri.EscapeDataString(webHook.AuthorLink ?? string.Empty),
-                },
-                TimeStamp = webHook.TimeStamp?.ToDateTime().ToUniversalIso8601(),
-                Footer = new EmbedFooter
-                {
-                    IconUrl = Uri.EscapeDataString(webHook.FooterIcon ?? string.Empty),
-                    Text = webHook.Footer
-                },
-                Image = new EmbedImage
-                {
-                    Url = Uri.EscapeDataString(webHook.ImageUrl ?? string.Empty),
-                },
-                Color = int.Parse(webHook.Color[1..], System.Globalization.NumberStyles.HexNumber),
-                Fields = webHook.Fields.ConvertAll(EmbedField.Convert)
+                Url = NormalizeUrl(webHook.TitleLink),
+                Description = string.IsNullOrWhiteSpace(webHook.Text)
+                    ? webHook.Title
+                    : webHook.Text,
+                TimeStamp = webHook.TimeStamp?.ToDateTime().ToUniversalTime().ToString("o"),
+                Color = ParseDiscordColor(webHook.Color),
+                Fields = webHook.Fields?.ConvertAll(EmbedField.Convert) ?? []
             };
+
+            if (!string.IsNullOrWhiteSpace(webHook.Author))
+            {
+                embed.Author = new EmbedAuthor
+                {
+                    Name = webHook.Author,
+                    Url = NormalizeUrl(webHook.AuthorLink),
+                    IconUrl = NormalizeUrl(webHook.AuthorIcon)
+                };
+            }
+
+            if (!string.IsNullOrWhiteSpace(webHook.Footer))
+            {
+                embed.Footer = new EmbedFooter
+                {
+                    Text = webHook.Footer,
+                    IconUrl = NormalizeUrl(webHook.FooterIcon)
+                };
+            }
+
+            var imageUrl = NormalizeUrl(webHook.ImageUrl);
+            if (imageUrl != null)
+            {
+                embed.Image = new EmbedImage
+                {
+                    Url = imageUrl
+                };
+            }
+
+            return embed;
+
+            string NormalizeUrl(string url)
+            {
+                if (string.IsNullOrWhiteSpace(url))
+                    return null;
+
+                try
+                {
+                    var decoded = Uri.UnescapeDataString(url);
+                    if (Uri.TryCreate(decoded, UriKind.Absolute, out var uri) &&
+                        (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps))
+                    {
+                        return decoded;
+                    }
+                }
+                catch
+                {
+                    // ignored
+                }
+
+                return null;
+            }
         }
+
+
+        private static int ParseDiscordColor(string? hex)
+        {
+            if (string.IsNullOrWhiteSpace(hex))
+                return 0;
+
+            hex = hex.Trim();
+
+            if ("#".StartsWith(hex))
+                hex = hex[1..];
+
+            if (hex.Length == 3)
+            {
+                hex = string.Concat(hex.Select(c => $"{c}{c}"));
+            }
+
+            if (hex.Length != 6)
+                return 0;
+
+            return int.TryParse(hex, System.Globalization.NumberStyles.HexNumber,
+                System.Globalization.CultureInfo.InvariantCulture,
+                out var color) ? color : 0;
+        }
+
     }
 }
