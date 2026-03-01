@@ -79,26 +79,34 @@ namespace EzAspDotNet.Services
                 if (filteredWebHooks.Count <= 0)
                     continue;
 
-                switch (notification.Type)
+                try
                 {
-                    case NotificationType.Discord:
+                    switch (notification.Type)
                     {
-                        await _mongoDbDiscordWebHook.CreateAsync(new DiscordWebHook
+                        case NotificationType.Discord:
                         {
-                            Data = DiscordNotify(notification, filteredWebHooks)
-                        });
-                    }
-                        break;
-                    case NotificationType.Slack:
-                    {
-                        await _mongoDbSlackWebHook.CreateAsync(new SlackWebHook
+                            await _mongoDbDiscordWebHook.CreateAsync(new DiscordWebHook
+                            {
+                                Data = DiscordNotify(notification, filteredWebHooks)
+                            });
+                        }
+                            break;
+                        case NotificationType.Slack:
                         {
-                            Data = SlackNotify(notification, filteredWebHooks)
-                        });
+                            await _mongoDbSlackWebHook.CreateAsync(new SlackWebHook
+                            {
+                                Data = SlackNotify(notification, filteredWebHooks)
+                            });
+                        }
+                            break;
+                        default:
+                            throw new DeveloperException(ResultCode.NotImplementedYet);
                     }
-                        break;
-                    default:
-                        throw new DeveloperException(ResultCode.NotImplementedYet);
+                }
+                catch (System.Exception ex)
+                {
+                    Log.Logger.Error(ex, "WebHook Execute Failed.");
+                    throw;
                 }
             }
         }

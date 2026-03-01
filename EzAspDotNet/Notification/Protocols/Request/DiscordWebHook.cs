@@ -132,23 +132,23 @@ namespace EzAspDotNet.Notification.Protocols.Request
             return new Embed
             {
                 Title = webHook.Title,
-                Url = Uri.EscapeDataString(webHook.TitleLink),
+                Url = Uri.EscapeDataString(webHook.TitleLink ?? string.Empty),
                 Description = webHook.Text,
                 Author = new EmbedAuthor
                 {
                     IconUrl = webHook.AuthorIcon,
                     Name = webHook.Author,
-                    Url = Uri.EscapeDataString(webHook.AuthorLink),
+                    Url = Uri.EscapeDataString(webHook.AuthorLink ?? string.Empty),
                 },
                 TimeStamp = webHook.TimeStamp?.ToDateTime().ToUniversalIso8601(),
                 Footer = new EmbedFooter
                 {
-                    IconUrl = Uri.EscapeDataString(webHook.FooterIcon),
+                    IconUrl = Uri.EscapeDataString(webHook.FooterIcon ?? string.Empty),
                     Text = webHook.Footer
                 },
                 Image = new EmbedImage
                 {
-                    Url = Uri.EscapeDataString(webHook.ImageUrl),
+                    Url = Uri.EscapeDataString(webHook.ImageUrl ?? string.Empty),
                 },
                 Color = int.Parse(webHook.Color[1..], System.Globalization.NumberStyles.HexNumber),
                 Fields = webHook.Fields.ConvertAll(EmbedField.Convert)
